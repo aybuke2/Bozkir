@@ -1,0 +1,797 @@
+
+/* =========================================
+   1. GENEL AYARLAR
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7f4;
+  color: #24352b;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  background: #286443;
+  color: white;
+  border: none;
+  padding: 13px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #194d31;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   2. ANA SAYFA DÜZENİ
+========================================= */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 25px 35px;
+  min-width: 0;
+}
+
+/* =========================================
+   3. SIDEBAR
+========================================= */
+
+.sidebar {
+  width: 250px;
+  min-width: 250px;
+  background: #173b2b;
+  color: white;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 50px;
+}
+
+.logo h2 {
+  margin: 0;
+}
+
+.menu-title {
+  font-size: 11px;
+  color: #a8c1b0;
+  letter-spacing: 1px;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  color: #e1ebe4;
+  text-decoration: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  background: #315b43;
+  color: white;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+}
+
+/* =========================================
+   4. NAVBAR
+========================================= */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.navbar p,
+.welcome p,
+.stat-card p,
+.field-card p {
+  color: #78867d;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* =========================================
+   5. DASHBOARD KARŞILAMA ALANI
+========================================= */
+
+.welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.welcome h1 {
+  margin-bottom: 8px;
+}
+
+.welcome p {
+  margin-top: 0;
+}
+
+.welcome button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* =========================================
+   6. İSTATİSTİK KARTLARI
+========================================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  border: 1px solid #e7ece7;
+  min-width: 0;
+}
+
+.stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-card h2 {
+  font-size: 28px;
+  margin: 15px 0;
+}
+
+.stat-card p {
+  font-size: 13px;
+}
+
+/* =========================================
+   7. TARLALARIM SAYFASI
+========================================= */
+
+.fields-page-header,
+.my-fields-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.fields-page-header h1,
+.my-fields-title h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.fields-page-header p,
+.my-fields-title p {
+  color: #78867d;
+  margin: 0;
+}
+
+.add-field-btn,
+.save-field-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #286443;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.add-field-btn:hover,
+.save-field-btn:hover {
+  background: #194d31;
+}
+
+.field-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e8f3eb;
+  color: #286443;
+  padding: 10px 15px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* =========================================
+   8. TARLA EKLEME / DÜZENLEME FORMU
+========================================= */
+
+.field-form-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid #e7ece7;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.form-header h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.form-header p {
+  color: #78867d;
+  font-size: 14px;
+  margin: 0;
+}
+
+.close-btn {
+  background: #edf1ed;
+  color: #526357;
+  border: none;
+  padding: 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: #dce5dd;
+}
+
+.field-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dce4dc;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  color: #24352b;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #39835a;
+  box-shadow: 0 0 0 2px rgba(57, 131, 90, 0.1);
+}
+
+/* Eski FieldSelection formu kullanılıyorsa */
+
+.field-form {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #e7ece7;
+  max-width: 950px;
+}
+
+.field-form label {
+  display: block;
+  margin: 18px 0 8px;
+  font-weight: 600;
+}
+
+.field-form input,
+.field-form select {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #dce4dc;
+  border-radius: 8px;
+  background: white;
+  margin-bottom: 15px;
+}
+
+.field-form button {
+  margin-top: 20px;
+}
+
+/* =========================================
+   9. HARİTA ALANI
+========================================= */
+
+.field-map-section {
+  margin-top: 30px;
+}
+
+.field-map-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.field-map-section p {
+  color: #78867d;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Harita bileşeninin kapsayıcısı */
+.field-map-section > div {
+  max-width: 100%;
+}
+
+.selected-position {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: #edf7ef;
+  color: #286443;
+  padding: 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+/* =========================================
+   10. FORM BUTONLARI
+========================================= */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.form-actions button {
+  padding: 12px 20px;
+  font-weight: 600;
+}
+
+.cancel-btn {
+  background: #e8ece8;
+  color: #37483c;
+}
+
+.cancel-btn:hover {
+  background: #d9e0da;
+}
+
+/* =========================================
+   11. TARLA KARTLARI
+========================================= */
+
+.fields-section,
+.my-fields-section {
+  margin-top: 40px;
+}
+
+.fields-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.fields-header p {
+  color: #78867d;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.field-card {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  border: 1px solid #e7ece7;
+  min-width: 0;
+  max-width: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.field-card:hover {
+  box-shadow: 0 5px 18px rgba(36, 53, 43, 0.07);
+}
+
+.field-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.field-card-header h3 {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.field-location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #78867d;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.field-card-details {
+  margin: 22px 0;
+  display: grid;
+  gap: 13px;
+}
+
+.field-card-details div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.field-card-details span {
+  color: #78867d;
+}
+
+.field-card-details strong {
+  text-align: right;
+}
+
+.delete-field-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  background: #fee8e6;
+  color: #c0392b;
+  padding: 9px;
+  border-radius: 7px;
+}
+
+.delete-field-btn:hover {
+  background: #fbd0cb;
+}
+
+.inspect-field-btn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #286443;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+}
+
+.inspect-field-btn:hover {
+  background: #194d31;
+}
+
+/* =========================================
+   12. BOŞ TARLA LİSTESİ
+========================================= */
+
+.empty-fields {
+  background: white;
+  border: 2px dashed #cbd8ce;
+  border-radius: 12px;
+  padding: 45px 20px;
+  text-align: center;
+  color: #78867d;
+}
+
+.empty-fields svg {
+  color: #39835a;
+}
+
+.empty-fields h3 {
+  color: #24352b;
+  margin-bottom: 8px;
+}
+
+.empty-fields p {
+  margin-bottom: 20px;
+}
+
+/* =========================================
+   13. ANALİZ GRAFİKLERİ
+========================================= */
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.chart-card {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  border: 1px solid #e7ece7;
+  margin-top: 20px;
+  min-width: 0;
+}
+
+.ndvi-value {
+  font-size: 42px;
+  font-weight: bold;
+  color: #286443;
+  margin: 20px 0;
+}
+
+/* =========================================
+   14. ROTASYON ANALİZİ
+========================================= */
+
+.priority-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e7ece7;
+  margin: 25px 0;
+  max-width: 650px;
+}
+
+.priority-card input {
+  width: 100%;
+  accent-color: #286443;
+  margin: 15px 0 25px;
+}
+
+.priority-item {
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+.priority-info {
+  color: #78867d;
+  font-size: 13px;
+}
+
+.section-heading {
+  margin-top: 40px;
+}
+
+.rotation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.rotation-card {
+  background: white;
+  border: 1px solid #e7ece7;
+  padding: 22px;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.score-bar {
+  height: 9px;
+  background: #e8eee9;
+  border-radius: 10px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: #39835a;
+  border-radius: 10px;
+}
+
+.overall-score {
+  margin-top: 25px;
+  padding: 15px;
+  background: #f2f6f2;
+  border-radius: 10px;
+}
+
+.overall-score h2 {
+  color: #286443;
+  margin-bottom: 0;
+}
+
+.rotation-card li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* =========================================
+   15. TABLET UYUMLULUĞU
+========================================= */
+
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rotation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidebar {
+    width: 210px;
+    min-width: 210px;
+  }
+}
+
+/* =========================================
+   16. MOBİL UYUMLULUK
+========================================= */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 190px;
+    min-width: 190px;
+  }
+
+  .main-content {
+    padding: 18px;
+  }
+
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rotation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fields-page-header,
+  .my-fields-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* =========================================
+   17. KÜÇÜK EKRANLAR
+========================================= */
+
+@media (max-width: 600px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    padding: 18px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome {
+    align-items: flex-start;
+    gap: 15px;
+    flex-direction: column;
+  }
+
+  .fields-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .field-form-section {
+    padding: 16px;
+  }
+
+  .field-card {
+    padding: 17px;
+  }
+
+  .field-count {
+    font-size: 13px;
+  }
+
+  .navbar {
+    margin-bottom: 25px;
+  }
+}
