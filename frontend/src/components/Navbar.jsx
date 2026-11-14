@@ -1,20 +1,19 @@
 
-import { Bell, UserCircle } from "lucide-react";
+import { Sprout } from "lucide-react";
 
-function Navbar() {
+export default function Navbar() {
   return (
     <header className="navbar">
       <div>
-        <h3>Tarımın geleceğini planla.</h3>
-        <p>Çevresel verilerle daha bilinçli kararlar.</p>
+        <h3>Plan the future of farming.</h3>
+        <p>
+          Make informed decisions with Earth observation data.
+        </p>
       </div>
 
       <div className="navbar-right">
-        <Bell size={21} />
-        <UserCircle size={30} />
+        <Sprout size={28} />
       </div>
     </header>
   );
 }
-
-export default Navbar;

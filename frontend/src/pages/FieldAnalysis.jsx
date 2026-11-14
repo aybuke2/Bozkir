@@ -1,61 +1,80 @@
-import { useState, useEffect } from "react";
+
+import { useEffect, useState } from "react";
+import { Droplets, Thermometer, Activity } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-
 import StatCard from "../components/StatCard";
 import RainfallChart from "../components/RainfallChart";
 import TemperatureChart from "../components/TemperatureChart";
-import NDVIChart from "../components/NDVIChart";
 
 import {
   getClimateByLocation,
-  getRainfallByPeriod
+  getClimateHistory,
+  getApiError,
 } from "../services/api";
 
-import {
-  Droplets,
-  Thermometer,
-  Sprout
-} from "lucide-react";
+function readSelectedField() {
+  try {
+    const selected = JSON.parse(
+      localStorage.getItem("selectedField") || "null"
+    );
+    if (!selected) return null;
 
-function FieldAnalysis() {
+    const fields = JSON.parse(
+      localStorage.getItem("bozkir_fields") || "[]"
+    );
+
+    return fields.find((field) => field.id === selected.id) || null;
+  } catch {
+    return null;
+  }
+}
+
+export default function FieldAnalysis() {
+  const [field] = useState(readSelectedField);
   const [climate, setClimate] = useState(null);
-  const [rainfall, setRainfall] = useState(null);
-
-  const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState(null);
+  const [loading, setLoading] = useState(Boolean(field));
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadData() {
+    if (!field) return;
+
+    let cancelled = false;
+
+    async function load() {
+      const location = {
+        latitude: Number(field.latitude),
+        longitude: Number(field.longitude),
+      };
+
       try {
-        setLoading(true);
-        setError("");
+        const [climateData, historyData] = await Promise.all([
+          getClimateByLocation(location),
+          getClimateHistory(location),
+        ]);
 
-        const savedFields = JSON.parse(localStorage.getItem("bozkir_fields") || "[]");
-        const targetField = savedFields.length > 0 
-          ? savedFields[savedFields.length - 1] 
-          : { latitude: 37.87, longitude: 32.48 };
-
-        const payload = {
-          latitude: targetField.latitude,
-          longitude: targetField.longitude,
-          start_date: "2005-01-01",
-          end_date: "2025-12-31"
-        };
-
-        const climateResult = await getClimateByLocation(payload);
-        setClimate(climateResult);
+        if (!cancelled) {
+          setClimate(climateData);
+          setHistory(historyData);
+        }
       } catch (err) {
-        console.error(err);
-        setError("Analiz verileri yüklenemedi.");
+        if (!cancelled) setError(getApiError(err));
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
-    loadData();
-  }, []);
+    load();
+    return () => { cancelled = true; };
+  }, [field]);
+
+  function format(value, unit) {
+    return value == null
+      ? "N/A"
+      : `${Number(value).toFixed(2)} ${unit}`;
+  }
 
   return (
     <div className="app-layout">
@@ -64,52 +83,73 @@ function FieldAnalysis() {
       <main className="main-content">
         <Navbar />
 
-        <h1>Tarla Karnesi</h1>
+        <h1>Field Analysis</h1>
 
-        {loading && <p>Analiz verileri yükleniyor...</p>}
+        {!field && (
+          <p>
+            No field selected. Open My Fields and select
+            a field to analyze.
+          </p>
+        )}
 
-        {error && <p>{error}</p>}
+        {field && (
+          <p>
+            {field.fieldName} — {Number(field.latitude).toFixed(4)},{" "}
+            {Number(field.longitude).toFixed(4)}
+          </p>
+        )}
 
-        {!loading && !error && climate && (
+        {loading && <p>Loading NASA climate data...</p>}
+
+        {error && (
+          <p role="alert" style={{ color: "#b91c1c" }}>
+            {error}
+          </p>
+        )}
+
+        {!loading && !error && climate && history && (
           <>
-            {/* İstatistik kartları */}
+            <p>
+              Historical period: {climate.period} |
+              Source: NASA POWER
+            </p>
+
             <div className="stats-grid">
               <StatCard
-                title="Yıllık Yağış"
-                value={`${climate.annual_rainfall || 320} mm`}
-                description="NASA Verisi"
+                title="Average Annual Rainfall"
+                value={format(climate.mean_annual_rainfall_mm, "mm")}
+                description="Historical average"
                 icon={<Droplets />}
               />
 
               <StatCard
-                title="Ortalama Sıcaklık"
-                value={`${climate.average_temperature || 14.2} °C`}
-                description="NASA Verisi"
+                title="Average Temperature"
+                value={format(climate.mean_temperature_c, "°C")}
+                description="Historical average"
                 icon={<Thermometer />}
               />
 
               <StatCard
-                title="NDVI"
-                value={climate.ndvi || "0.48"}
-                description="Uydu İndeksi"
-                icon={<Sprout />}
+                title="Rainfall Variability"
+                value={format(climate.annual_rainfall_cv_percent, "%")}
+                description="Annual coefficient of variation"
+                icon={<Activity />}
               />
             </div>
 
-            {/* Yağış ve sıcaklık grafikleri */}
             <div className="charts-grid">
-              <RainfallChart data={climate.rainfall_history} />
-              <TemperatureChart data={climate.temperature_history} />
+              <RainfallChart data={history.annual_rainfall} />
+              <TemperatureChart data={history.monthly_temperature} />
             </div>
 
-            {/* NDVI grafiği */}
-            <NDVIChart data={climate.ndvi_history} />
+            <p>
+              These values describe historical climate conditions.
+              They are not weather forecasts, NDVI measurements,
+              or irrigation recommendations.
+            </p>
           </>
         )}
-
       </main>
     </div>
   );
 }
-
-export default FieldAnalysis;
