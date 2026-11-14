@@ -1,0 +1,14 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.py[cod]
+
+# Generated data
+backend/data/
+
+# Environment variables
+.env
+
+# Frontend
+node_modules/
+dist/
