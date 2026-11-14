@@ -1,0 +1,63 @@
+
+{
+  "latitude": 37.87,
+  "longitude": 32.49,
+  "current": [
+    "wheat",
+    "wheat",
+    "barley"
+  ],
+  "alternative_a": [
+    "wheat",
+    "chickpea",
+    "barley"
+  ],
+  "alternative_b": [
+    "wheat",
+    "lentil",
+    "barley"
+  ],
+  "priority": "balanced",
+  "crop_calendars": {
+    "wheat": {
+      "planting_date": "2023-10-01",
+      "initial_days": 30,
+      "development_days": 60,
+      "mid_days": 100,
+      "late_days": 60,
+      "kc_initial": 0.4,
+      "kc_mid": 1.15,
+      "kc_end": 0.25
+    },
+    "barley": {
+      "planting_date": "2023-10-01",
+      "initial_days": 25,
+      "development_days": 50,
+      "mid_days": 90,
+      "late_days": 45,
+      "kc_initial": 0.4,
+      "kc_mid": 1.15,
+      "kc_end": 0.25
+    },
+    "chickpea": {
+      "planting_date": "2024-03-01",
+      "initial_days": 20,
+      "development_days": 30,
+      "mid_days": 45,
+      "late_days": 30,
+      "kc_initial": 0.4,
+      "kc_mid": 1.0,
+      "kc_end": 0.35
+    },
+    "lentil": {
+      "planting_date": "2024-03-01",
+      "initial_days": 20,
+      "development_days": 30,
+      "mid_days": 45,
+      "late_days": 30,
+      "kc_initial": 0.4,
+      "kc_mid": 1.1,
+      "kc_end": 0.3
+    }
+  }
+}
