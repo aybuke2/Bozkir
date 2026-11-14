@@ -1,0 +1,172 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7f4;
+  color: #24352b;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: #173b2b;
+  color: white;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 50px;
+}
+
+.menu-title {
+  font-size: 11px;
+  color: #a8c1b0;
+  letter-spacing: 1px;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  color: #e1ebe4;
+  text-decoration: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  background: #315b43;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+}
+
+.main-content {
+  flex: 1;
+  padding: 25px 35px;
+  min-width: 0;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.navbar p,
+.welcome p,
+.stat-card p,
+.field-card p {
+  color: #78867d;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+button {
+  background: #286443;
+  color: white;
+  border: none;
+  padding: 13px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #194d31;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.stat-card,
+.field-card {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  border: 1px solid #e7ece7;
+}
+
+.stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-card h2 {
+  font-size: 28px;
+}
+
+.fields-section {
+  margin-top: 40px;
+}
+
+.field-card {
+  max-width: 350px;
+}
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sidebar {
+    width: 190px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    display: none;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome {
+    align-items: flex-start;
+    gap: 15px;
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 18px;
+  }
+}
