@@ -142,7 +142,7 @@ export default function FieldAnalysis() {
           <>
             <p>
               Historical period: {climate.period} |
-              Source: NASA POWER
+              Source: NASA POWER {climate.latest_available_date ? `| Latest data: ${climate.latest_available_date}` : ""}
             </p>
 
             <div className="stats-grid">

@@ -1,5 +1,7 @@
 
 import math
+from datetime import date, timedelta
+from functools import lru_cache
 
 import pandas as pd
 import requests
@@ -20,10 +22,11 @@ PARAMETERS = [
 ]
 
 START_DATE = "20050101"
-END_DATE = "20241231"
+END_DATE = "20241231"  # legacy constant; live requests use latest date
 
 
-def fetch_eto_weather(latitude, longitude):
+@lru_cache(maxsize=16)
+def _fetch_eto_weather_cached(latitude, longitude, end_date):
     """
     FAO Penman-Monteith ETo hesabı için
     NASA POWER meteoroloji verilerini getirir.
@@ -47,7 +50,7 @@ def fetch_eto_weather(latitude, longitude):
         "latitude": latitude,
         "longitude": longitude,
         "start": START_DATE,
-        "end": END_DATE,
+        "end": end_date,
         "format": "JSON",
         "time-standard": "LST",
     }
@@ -135,6 +138,11 @@ def fetch_eto_weather(latitude, longitude):
     return df
 
 
+def fetch_eto_weather(latitude, longitude):
+    end_date = (date.today() - timedelta(days=10)).strftime("%Y%m%d")
+    return _fetch_eto_weather_cached(round(latitude, 4), round(longitude, 4), end_date).copy()
+
+
 def summarize_eto_weather(latitude, longitude):
     df = fetch_eto_weather(
         latitude,
@@ -162,7 +170,7 @@ def summarize_eto_weather(latitude, longitude):
         ),
         "mean_solar_radiation_mj_m2_day": round(
             float(
-                df["ALLSKY_SFC_SW_DWN"].mean()
+                df["ALLSKY_SFC_SW_DWN"].mean() * 3.6
             ),
             2,
         ),

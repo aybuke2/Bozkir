@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from crop_data import get_crop
 from crop_water import calculate_kc
+from climate_analog import weather_for_season
 from eto_calculator import calculate_eto_dataframe
 from location_climate import fetch_nasa_data
 
@@ -112,26 +113,9 @@ def _crop_water_metrics(crop_id, calendar, eto_df, rain_df):
     start = calendar.planting_date
     end = start + timedelta(days=total_days - 1)
 
-    eto = eto_df.loc[
-        (eto_df["date"].dt.date >= start)
-        & (eto_df["date"].dt.date <= end)
-    ].sort_values("date")
-
-    rain = rain_df.loc[
-        (rain_df["date"].dt.date >= start)
-        & (rain_df["date"].dt.date <= end)
-    ].sort_values("date")
-
-    if (
-        len(eto) != total_days
-        or eto["date"].dt.date.nunique() != total_days
-        or len(rain) != total_days
-        or rain["date"].dt.date.nunique() != total_days
-    ):
-        raise ValueError(
-            f"{crop_id}: Complete daily data are unavailable "
-            "for the selected dates."
-        )
+    eto, rain, data_mode, latest_date = weather_for_season(
+        eto_df, rain_df, start, total_days
+    )
 
     coefficients = [
         calendar.kc_initial,
@@ -157,6 +141,8 @@ def _crop_water_metrics(crop_id, calendar, eto_df, rain_df):
 
     return {
         "crop_id": crop_id,
+        "data_mode": data_mode,
+        "latest_available_date": latest_date,
         "planting_date": str(start),
         "end_date": str(end),
         "eto_mm": round(eto_total, 2),
@@ -279,7 +265,7 @@ def build_decision(request: DecisionRequest):
                 "and elevation inputs"
             ),
             "etc_method": (
-                "FAO-56 single Kc; historical crop-calendar scenarios, "
+                "FAO-56 single Kc; observed seasons or historical seasonal analogues, "
                 "FAO-56 reference mid/end coefficients and illustrative "
                 "initial Kc; locally unvalidated"
             ),
@@ -291,7 +277,7 @@ def build_decision(request: DecisionRequest):
             ),
             "important_limitations": [
                 (
-                    "Crop calendars are independent scenarios; "
+                    "Future seasons use historical daily climatology, not forecasts. Crop calendars are independent scenarios; "
                     "successive rotation years are not simulated."
                 ),
                 (

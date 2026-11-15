@@ -78,6 +78,7 @@ def climate_history(request: ClimateHistoryRequest):
                 }
                 for month, row in monthly.iterrows()
             ],
+            "latest_available_date": str(df["date"].max().date()),
             "source": "NASA POWER",
             "note": (
                 "Historical observations, not a forecast. "

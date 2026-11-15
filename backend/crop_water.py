@@ -5,6 +5,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from eto_calculator import calculate_eto_dataframe
+from location_climate import fetch_nasa_data
+from climate_analog import weather_for_season
 
 
 router = APIRouter(prefix="/water", tags=["Crop Water"])
@@ -88,18 +90,10 @@ def analyze_crop_water(request: CropWaterRequest):
         request.longitude,
     )
 
-    weather = weather[
-        (weather["date"].dt.date >= request.planting_date)
-        & (weather["date"].dt.date <= end_date)
-    ].copy()
-
-    if len(weather) != total_days:
-        raise ValueError(
-            "Seçilen yetişme dönemi için eksiksiz "
-            "meteoroloji verisi bulunamadı. "
-            "Tarihleri 2005-2024 aralığında seçin."
-        )
-
+    rain_data = fetch_nasa_data(round(request.latitude, 4), round(request.longitude, 4))
+    weather, rain_data, data_mode, latest_date = weather_for_season(
+        weather, rain_data, request.planting_date, total_days
+    )
     weather = weather.sort_values("date")
 
     stage_totals = {
@@ -128,6 +122,8 @@ def analyze_crop_water(request: CropWaterRequest):
 
     return {
         "crop_id": request.crop_id,
+        "data_mode": data_mode,
+        "latest_available_date": latest_date,
         "latitude": request.latitude,
         "longitude": request.longitude,
         "planting_date": str(request.planting_date),

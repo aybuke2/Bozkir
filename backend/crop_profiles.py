@@ -54,7 +54,7 @@ def get_crop_profiles():
             "is_legume": crop.is_legume,
             "kc_initial_scenario": 0.4,
             "kc_initial_status": (
-                "FAO group reference; soil wetness dependent"
+                "illustrative_wetness_dependent_assumption"
             ),
             "kc_mid_reference": profile["kc_mid"],
             "kc_end_reference": profile["kc_end"],

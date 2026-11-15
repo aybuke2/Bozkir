@@ -1,7 +1,23 @@
 
 /* =========================================
-   1. GENEL AYARLAR
-========================================= */
+   BOZKIR — CLEAN DESIGN SYSTEM
+   ========================================= */
+
+:root {
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #18352a;
+  background: #fafbf8;
+
+  --dark: #123c2b;
+  --green: #276744;
+  --leaf: #65944e;
+  --gold: #e7b74d;
+  --cream: #faf9f3;
+  --text: #18352a;
+  --muted: #718078;
+  --border: #e2e9df;
+  --shadow: 0 10px 30px rgba(25, 55, 34, 0.06);
+}
 
 * {
   box-sizing: border-box;
@@ -9,29 +25,34 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f7f4;
-  color: #24352b;
+  min-width: 320px;
+  background: #fafbf8;
+  color: var(--text);
 }
 
 button,
 input,
-select {
-  font-family: inherit;
+select,
+textarea {
+  font: inherit;
 }
 
 button {
-  background: #286443;
+  background: var(--green);
   color: white;
-  border: none;
-  padding: 13px 20px;
-  border-radius: 8px;
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 9px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 button:hover {
   background: #194d31;
+  box-shadow: 0 5px 13px rgba(24, 70, 42, 0.12);
 }
 
 button:disabled {
@@ -39,89 +60,207 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid #d6ae4c;
+  outline-offset: 2px;
+}
+
 /* =========================================
-   2. ANA SAYFA DÜZENİ
-========================================= */
+   APPLICATION LAYOUT
+   ========================================= */
 
 .app-layout {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  align-items: stretch;
 }
 
 .main-content {
-  flex: 1;
-  padding: 25px 35px;
+  flex: 1 1 0;
   min-width: 0;
+  padding: 24px 36px 48px;
+  background:
+    radial-gradient(
+      ellipse at 85% 5%,
+      rgba(227, 236, 204, 0.23),
+      transparent 40%
+    ),
+    #fafbf8;
+}
+
+.main-content h1 {
+  font-size: clamp(26px, 2.5vw, 36px);
+  font-weight: 750;
+  letter-spacing: -0.7px;
+  color: #142f25;
+}
+
+.main-content h2 {
+  color: #17382a;
+}
+
+.main-content > p {
+  line-height: 1.65;
 }
 
 /* =========================================
-   3. SIDEBAR
-========================================= */
+   SIDEBAR
+   ========================================= */
 
 .sidebar {
-  width: 250px;
-  min-width: 250px;
-  background: #173b2b;
-  color: white;
-  padding: 28px 20px;
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
+  flex: 0 0 260px;
+  width: 260px;
+  min-width: 260px;
+  min-height: 100vh;
+  padding: 22px 16px 0;
+  overflow: hidden;
+  color: white;
+  background:
+    radial-gradient(
+      ellipse at 80% 0%,
+      rgba(76, 125, 78, 0.32),
+      transparent 45%
+    ),
+    linear-gradient(165deg, #164c35, #0d3024 85%);
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
 }
 
 .logo h2 {
   margin: 0;
 }
 
-.menu-title {
+.bozkir-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 8px 28px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bozkir-brand-symbol {
+  display: block;
+  width: 138px;
+  height: 110px;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
+}
+
+.bozkir-brand h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  color: #fffdf4;
+}
+
+.bozkir-brand p {
+  margin: 7px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: #d8e5ce;
+}
+
+.sidebar .menu-title {
+  padding: 0 12px;
+  margin: 12px 0 20px;
+  color: #b9d0bb;
   font-size: 11px;
-  color: #a8c1b0;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
 .sidebar nav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 9px;
 }
 
-.nav-link {
+.sidebar .nav-link {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 13px;
-  color: #e1ebe4;
+  gap: 14px;
+  padding: 14px 15px;
+  border-radius: 12px;
+  color: #e2eee4;
+  font-size: 15px;
+  font-weight: 500;
   text-decoration: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 
-.nav-link.active,
-.nav-link:hover {
-  background: #315b43;
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(3px);
   color: white;
 }
 
-.sidebar-bottom {
+.sidebar .nav-link.active {
+  background: linear-gradient(100deg, #477e4b, #639253);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.sidebar .nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  background: #f2d079;
+  border-radius: 0 3px 3px 0;
+}
+
+.bozkir-sidebar-footer {
   margin-top: auto;
+  margin-left: -16px;
+  margin-right: -16px;
+  line-height: 0;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.bozkir-sidebar-footer svg {
+  width: 100%;
+  height: 150px;
 }
 
 /* =========================================
-   4. NAVBAR
-========================================= */
+   NAVBAR / AGRICULTURAL HERO
+   ========================================= */
 
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 20px;
   margin-bottom: 40px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .navbar p,
@@ -131,20 +270,140 @@ button:disabled {
   color: #78867d;
 }
 
-.navbar-right {
+.navbar.bozkir-hero {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
-  gap: 20px;
+  min-height: 180px;
+  padding: 28px 36px;
+  margin: -24px -36px 38px;
+  border-radius: 0 0 28px 28px;
+  overflow: hidden;
+  background: linear-gradient(
+    100deg,
+    #f7faf2 0%,
+    #f7faf2 37%,
+    #edf4e6 100%
+  );
+  border-bottom: 1px solid #e5ebdd;
+}
+
+.bozkir-hero-content {
+  position: relative;
+  z-index: 3;
+  max-width: 650px;
+}
+
+.bozkir-hero-content h3 {
+  margin: 0 0 12px;
+  color: #18372a;
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.bozkir-hero-content p {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: #63736a;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.bozkir-hero-content p svg {
+  color: #478348;
+  flex-shrink: 0;
+}
+
+.bozkir-hero-landscape {
+  position: absolute;
+  inset: 0 0 0 45%;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 35%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 35%
+  );
+}
+
+.bozkir-hero-sun {
+  position: absolute;
+  width: 86px;
+  height: 86px;
+  right: 24%;
+  top: 12px;
+  border-radius: 50%;
+  background: linear-gradient(#ffdc8a, #fff0bb);
+  box-shadow: 0 0 35px rgba(247, 202, 106, 0.2);
+}
+
+.bozkir-hero-hill {
+  position: absolute;
+  width: 110%;
+  height: 125px;
+  border-radius: 50% 50% 0 0;
+}
+
+.hill-back {
+  right: -15%;
+  bottom: -20px;
+  background: #a9c29a;
+  transform: rotate(-7deg);
+}
+
+.hill-front {
+  right: -28%;
+  bottom: -57px;
+  background: #719b6b;
+  transform: rotate(5deg);
+}
+
+.bozkir-hero-field {
+  position: absolute;
+  height: 115px;
+  border-radius: 50% 50% 0 0;
+  bottom: -60px;
+  transform: rotate(-12deg);
+}
+
+.field-one {
+  width: 95%;
+  right: -15%;
+  background: #e5c96e;
+}
+
+.field-two {
+  width: 70%;
+  right: -8%;
+  bottom: -77px;
+  background: #c2b65d;
+}
+
+.field-three {
+  width: 45%;
+  right: -5%;
+  bottom: -88px;
+  background: #88a96b;
 }
 
 /* =========================================
-   5. DASHBOARD KARŞILAMA ALANI
-========================================= */
+   DASHBOARD
+   ========================================= */
 
 .welcome {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 20px;
   margin-bottom: 30px;
 }
@@ -164,22 +423,39 @@ button:disabled {
   white-space: nowrap;
 }
 
-/* =========================================
-   6. İSTATİSTİK KARTLARI
-========================================= */
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
-.stat-card {
-  background: white;
-  padding: 22px;
-  border-radius: 12px;
-  border: 1px solid #e7ece7;
+.stat-card,
+.field-card,
+.rotation-card,
+.chart-card,
+.field-form-section {
   min-width: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.stat-card,
+.field-card,
+.rotation-card,
+.chart-card {
+  padding: 22px;
+}
+
+.stat-card:hover,
+.field-card:hover,
+.rotation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 34px rgba(28, 67, 42, 0.1);
 }
 
 .stat-top {
@@ -198,27 +474,26 @@ button:disabled {
 }
 
 /* =========================================
-   7. TARLALARIM SAYFASI
-========================================= */
+   MY FIELDS — HEADERS & FORMS
+   ========================================= */
 
 .fields-page-header,
 .my-fields-title {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   margin-bottom: 25px;
 }
 
 .fields-page-header h1,
 .my-fields-title h2 {
-  margin-top: 0;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
 }
 
 .fields-page-header p,
 .my-fields-title p {
-  color: #78867d;
+  color: var(--muted);
   margin: 0;
 }
 
@@ -228,40 +503,25 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #286443;
-  color: white;
   padding: 12px 18px;
-  border-radius: 8px;
   font-weight: 600;
   white-space: nowrap;
-}
-
-.add-field-btn:hover,
-.save-field-btn:hover {
-  background: #194d31;
 }
 
 .field-count {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #e8f3eb;
-  color: #286443;
   padding: 10px 15px;
+  background: #e8f3eb;
+  color: var(--green);
   border-radius: 8px;
   white-space: nowrap;
 }
 
-/* =========================================
-   8. TARLA EKLEME / DÜZENLEME FORMU
-========================================= */
-
 .field-form-section {
-  background: white;
   padding: 25px;
-  border-radius: 12px;
   margin-bottom: 30px;
-  border: 1px solid #e7ece7;
 }
 
 .form-header {
@@ -273,26 +533,22 @@ button:disabled {
 }
 
 .form-header h2 {
-  margin-top: 0;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
 }
 
 .form-header p {
-  color: #78867d;
-  font-size: 14px;
   margin: 0;
+  color: var(--muted);
+  font-size: 14px;
 }
 
 .close-btn {
-  background: #edf1ed;
-  color: #526357;
-  border: none;
-  padding: 9px;
-  border-radius: 7px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 9px;
+  background: #edf1ed;
+  color: #526357;
 }
 
 .close-btn:hover {
@@ -313,19 +569,21 @@ button:disabled {
 }
 
 .form-group label {
-  font-weight: 600;
   font-size: 14px;
+  font-weight: 600;
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.field-form input,
+.field-form select {
   width: 100%;
+  min-width: 0;
   padding: 12px;
   border: 1px solid #dce4dc;
   border-radius: 8px;
   background: white;
-  font-size: 14px;
-  color: #24352b;
+  color: var(--text);
   outline: none;
 }
 
@@ -335,14 +593,12 @@ button:disabled {
   box-shadow: 0 0 0 2px rgba(57, 131, 90, 0.1);
 }
 
-/* Eski FieldSelection formu kullanılıyorsa */
-
 .field-form {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  border: 1px solid #e7ece7;
   max-width: 950px;
+  padding: 25px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .field-form label {
@@ -354,21 +610,12 @@ button:disabled {
 .field-form input,
 .field-form select {
   display: block;
-  width: 100%;
-  padding: 13px;
-  border: 1px solid #dce4dc;
-  border-radius: 8px;
-  background: white;
   margin-bottom: 15px;
 }
 
 .field-form button {
   margin-top: 20px;
 }
-
-/* =========================================
-   9. HARİTA ALANI
-========================================= */
 
 .field-map-section {
   margin-top: 30px;
@@ -382,12 +629,11 @@ button:disabled {
 }
 
 .field-map-section p {
-  color: #78867d;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.6;
 }
 
-/* Harita bileşeninin kapsayıcısı */
 .field-map-section > div {
   max-width: 100%;
 }
@@ -396,17 +642,13 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  background: #edf7ef;
-  color: #286443;
   padding: 12px;
+  margin-top: 12px;
+  background: #edf7ef;
+  color: var(--green);
   border-radius: 7px;
   font-size: 13px;
-  margin-top: 12px;
 }
-
-/* =========================================
-   10. FORM BUTONLARI
-========================================= */
 
 .form-actions {
   display: flex;
@@ -416,7 +658,6 @@ button:disabled {
 }
 
 .form-actions button {
-  padding: 12px 20px;
   font-weight: 600;
 }
 
@@ -430,8 +671,8 @@ button:disabled {
 }
 
 /* =========================================
-   11. TARLA KARTLARI
-========================================= */
+   MY FIELDS — CARDS
+   ========================================= */
 
 .fields-section,
 .my-fields-section {
@@ -440,14 +681,14 @@ button:disabled {
 
 .fields-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 15px;
   margin-bottom: 20px;
 }
 
 .fields-header p {
-  color: #78867d;
+  color: var(--muted);
 }
 
 .fields-grid {
@@ -456,24 +697,10 @@ button:disabled {
   gap: 20px;
 }
 
-.field-card {
-  background: white;
-  padding: 22px;
-  border-radius: 12px;
-  border: 1px solid #e7ece7;
-  min-width: 0;
-  max-width: none;
-  transition: box-shadow 0.2s ease;
-}
-
-.field-card:hover {
-  box-shadow: 0 5px 18px rgba(36, 53, 43, 0.07);
-}
-
 .field-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -486,27 +713,27 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #78867d;
+  color: var(--muted);
   font-size: 13px;
   overflow-wrap: anywhere;
 }
 
 .field-card-details {
-  margin: 22px 0;
   display: grid;
   gap: 13px;
+  margin: 22px 0;
 }
 
 .field-card-details div {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   font-size: 14px;
 }
 
 .field-card-details span {
-  color: #78867d;
+  color: var(--muted);
 }
 
 .field-card-details strong {
@@ -518,46 +745,43 @@ button:disabled {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: none;
+  padding: 9px;
   background: #fee8e6;
   color: #c0392b;
-  padding: 9px;
-  border-radius: 7px;
 }
 
 .delete-field-btn:hover {
   background: #fbd0cb;
 }
 
-.inspect-field-btn {
-  width: 100%;
+.field-card-actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.inspect-field-btn,
+.field-card-actions .inspect-field-btn {
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
   padding: 12px;
-  background: #286443;
-  color: white;
-  border: none;
-  border-radius: 7px;
+  border-radius: 8px;
   font-weight: 600;
 }
 
-.inspect-field-btn:hover {
-  background: #194d31;
-}
-
-/* =========================================
-   12. BOŞ TARLA LİSTESİ
-========================================= */
-
 .empty-fields {
+  padding: 45px 20px;
+  text-align: center;
+  color: var(--muted);
   background: white;
   border: 2px dashed #cbd8ce;
   border-radius: 12px;
-  padding: 45px 20px;
-  text-align: center;
-  color: #78867d;
 }
 
 .empty-fields svg {
@@ -565,7 +789,7 @@ button:disabled {
 }
 
 .empty-fields h3 {
-  color: #24352b;
+  color: var(--text);
   margin-bottom: 8px;
 }
 
@@ -574,48 +798,109 @@ button:disabled {
 }
 
 /* =========================================
-   13. ANALİZ GRAFİKLERİ
-========================================= */
+   FIELD ANALYSIS
+   ========================================= */
+
+.bozkir-analysis-field-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 700px;
+  padding: 20px 24px;
+  margin: 22px 0 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.bozkir-analysis-field-picker label {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.bozkir-analysis-field-picker select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #cbd8cd;
+  border-radius: 8px;
+}
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   margin-top: 25px;
+  align-items: stretch;
 }
 
 .chart-card {
-  background: white;
-  padding: 22px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 0;
+}
+
+.bozkir-chart-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.bozkir-chart-heading h3 {
+  margin: 0 0 5px;
+  font-size: 17px;
+}
+
+.bozkir-chart-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.bozkir-chart-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  border: 1px solid #e7ece7;
-  margin-top: 20px;
+  background: #e7f2e8;
+  color: var(--green);
+}
+
+.bozkir-chart-area {
+  width: 100%;
+  height: 300px;
   min-width: 0;
 }
 
 .ndvi-value {
+  margin: 20px 0;
   font-size: 42px;
   font-weight: bold;
-  color: #286443;
-  margin: 20px 0;
+  color: var(--green);
 }
 
 /* =========================================
-   14. ROTASYON ANALİZİ
-========================================= */
+   ROTATION PLANNING
+   ========================================= */
 
 .priority-card {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  border: 1px solid #e7ece7;
-  margin: 25px 0;
   max-width: 650px;
+  padding: 24px;
+  margin: 25px 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .priority-card input {
   width: 100%;
-  accent-color: #286443;
+  accent-color: var(--green);
   margin: 15px 0 25px;
 }
 
@@ -625,61 +910,79 @@ button:disabled {
 }
 
 .priority-info {
-  color: #78867d;
+  color: var(--muted);
   font-size: 13px;
 }
 
 .section-heading {
-  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 45px 0 18px;
+  font-size: 25px;
+  letter-spacing: -0.5px;
+}
+
+.section-heading::before {
+  content: "";
+  width: 6px;
+  height: 27px;
+  border-radius: 6px;
+  background: linear-gradient(#e6bb53, #438552);
 }
 
 .rotation-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
-  margin-top: 20px;
   width: 100%;
+  margin-top: 20px;
 }
 
-.rotation-card {
-  background: white;
-  border: 1px solid #e7ece7;
-  padding: 22px;
-  border-radius: 12px;
-  min-width: 0;
+.rotation-grid > .rotation-card:nth-child(3n + 1) {
+  border-top: 3px solid #5c9b61;
+}
+
+.rotation-grid > .rotation-card:nth-child(3n + 2) {
+  border-top: 3px solid #d9b451;
+}
+
+.rotation-grid > .rotation-card:nth-child(3n) {
+  border-top: 3px solid #86a66b;
 }
 
 .score-row {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   margin-top: 20px;
   font-size: 14px;
 }
 
 .score-bar {
   height: 9px;
-  background: #e8eee9;
-  border-radius: 10px;
   margin-top: 8px;
   overflow: hidden;
+  background: #e8eee9;
+  border-radius: 10px;
 }
 
 .score-fill {
   height: 100%;
-  background: #39835a;
+  background: linear-gradient(90deg, #438b5a, #83b86b);
   border-radius: 10px;
 }
 
 .overall-score {
   margin-top: 25px;
   padding: 15px;
-  background: #f2f6f2;
-  border-radius: 10px;
+  background: linear-gradient(120deg, #eef5e9, #f7f9f3);
+  border-radius: 12px;
 }
 
 .overall-score h2 {
-  color: #286443;
   margin-bottom: 0;
+  color: var(--green);
 }
 
 .rotation-card li {
@@ -688,51 +991,464 @@ button:disabled {
 }
 
 /* =========================================
-   15. TABLET UYUMLULUĞU
-========================================= */
+   SETUP PANELS
+   ========================================= */
 
-@media (max-width: 1100px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.bozkir-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: stretch;
+  margin: 26px 0 36px;
+}
 
-  .rotation-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.bozkir-setup-grid .priority-card {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 27px;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #e1e9dc;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
 
-  .sidebar {
-    width: 210px;
-    min-width: 210px;
-  }
+.bozkir-setup-grid .priority-card::before {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -70px;
+  bottom: -90px;
+  border-radius: 50%;
+  background: rgba(154, 192, 122, 0.1);
+  pointer-events: none;
+}
+
+.bozkir-field-panel {
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #f2f7ed
+  ) !important;
+}
+
+.bozkir-priority-panel {
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #fffaf0
+  ) !important;
+}
+
+.bozkir-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 28px;
+}
+
+.bozkir-panel-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: #e2efda;
+  color: #347545;
+}
+
+.bozkir-panel-icon-gold {
+  background: #fff0c8;
+  color: #8c741e;
+}
+
+.bozkir-panel-header h2 {
+  margin: 0 0 5px;
+  font-size: 23px;
+  letter-spacing: -0.4px;
+}
+
+.bozkir-panel-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bozkir-field-panel > select,
+.bozkir-priority-panel select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 11px 13px;
+  border: 1px solid #ccd9cd;
+  border-radius: 10px;
+  background: white;
+  color: #24372b;
+  outline: none;
+}
+
+.bozkir-priority-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.bozkir-priority-content .priority-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+
+.bozkir-priority-content select {
+  flex: 1;
+}
+
+.bozkir-priority-illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 70px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #f1f4de;
+  color: #6e9548;
+}
+
+.bozkir-priority-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 12px;
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: #f3f3d9;
+  color: #435536;
+  font-size: 13px;
+}
+
+.bozkir-priority-panel small {
+  display: block;
+  color: #6f7d72;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 /* =========================================
-   16. MOBİL UYUMLULUK
-========================================= */
+   CROP CALENDARS
+   ========================================= */
 
-@media (max-width: 768px) {
+.bozkir-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+  margin-top: 20px;
+}
+
+.bozkir-calendar-grid > .rotation-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 18px;
+  overflow: visible;
+}
+
+.bozkir-calendar-grid .priority-item label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bozkir-calendar-grid input {
+  width: 100%;
+  max-width: 100%;
+  padding: 7px;
+  border: 1px solid #d6dfd7;
+  border-radius: 6px;
+}
+
+.bozkir-crop-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 42px;
+  margin-bottom: 14px;
+}
+
+.bozkir-crop-heading h3 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.bozkir-crop-info {
+  position: relative;
+  cursor: help;
+  outline-offset: 3px;
+}
+
+.bozkir-crop-info-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  background: #edf5e9;
+  color: #1d6546;
+  border: 1px solid #d8e7d9;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bozkir-crop-info-trigger:hover,
+.bozkir-crop-info-trigger:focus-visible {
+  background: #d9ecd8;
+  color: #1d6546;
+}
+
+.bozkir-crop-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 100;
+  width: 290px;
+  max-width: min(290px, 90vw);
+  overflow: hidden;
+  background: white;
+  color: #193e2e;
+  border: 1px solid #d7e4d9;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(20, 49, 32, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  transition:
+    opacity 0.16s,
+    transform 0.16s,
+    visibility 0.16s;
+  pointer-events: none;
+}
+
+.bozkir-crop-info:hover .bozkir-crop-popover,
+.bozkir-crop-info:focus-within .bozkir-crop-popover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.bozkir-crop-popover-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 190px;
+  padding: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.bozkir-crop-popover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: white;
+}
+
+.bozkir-crop-popover-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px 17px 16px;
+  background: white;
+}
+
+.bozkir-crop-type {
+  align-self: flex-start;
+  padding: 3px 8px;
+  background: #e9f3e7;
+  color: #39734b;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.bozkir-crop-popover-body strong {
+  font-size: 18px;
+}
+
+.bozkir-crop-popover-body em {
+  color: #6e8274;
+  font-size: 12px;
+}
+
+.bozkir-crop-popover-body p {
+  margin: 6px 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bozkir-crop-popover-body small {
+  color: #8b9b8f;
+  font-size: 10px;
+}
+
+.bozkir-crop-popover-sun,
+.bozkir-crop-popover-land,
+.bozkir-crop-popover-plant {
+  display: none;
+}
+
+.bozkir-kc-note {
+  min-height: 52px;
+  color: #6b786e;
+  font-size: 12px;
+}
+
+.bozkir-calendar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  min-height: 195px;
+  margin-top: auto;
+  padding-top: 17px;
+}
+
+.bozkir-calendar-basis {
+  min-height: 38px;
+  margin: 0;
+  color: #657b6c;
+  font-size: 12px;
+}
+
+.bozkir-calendar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 52px;
+  font-size: 12px;
+}
+
+.bozkir-reset-button {
+  align-self: flex-start;
+  margin-top: auto !important;
+}
+
+.bozkir-year-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 8px;
+}
+
+.bozkir-year-actions button {
+  margin: 0;
+}
+
+/* =========================================
+   WATER INDICATOR CARDS
+   ========================================= */
+
+.rotation-grid.bozkir-water-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.bozkir-water-grid .rotation-card {
+  min-width: 0;
+  padding: 20px 16px;
+}
+
+.bozkir-water-grid .rotation-card p {
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 1350px) {
+  .rotation-grid.bozkir-water-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1200px) {
+  .bozkir-setup-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bozkir-calendar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bozkir-hero-landscape {
+    inset: 0 0 0 52%;
+  }
+}
+
+@media (max-width: 1100px) {
+  .stats-grid,
+  .rotation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
   .sidebar {
-    width: 190px;
-    min-width: 190px;
+    flex-basis: 210px;
+    width: 210px;
+    min-width: 210px;
+  }
+
+  .bozkir-brand-symbol {
+    width: 115px;
+    height: 90px;
+  }
+
+  .bozkir-brand h2 {
+    font-size: 27px;
   }
 
   .main-content {
-    padding: 18px;
+    padding: 20px;
   }
 
-  .fields-grid {
-    grid-template-columns: 1fr;
+  .navbar.bozkir-hero {
+    margin: -20px -20px 30px;
+    padding: 26px 22px;
   }
 
-  .field-form-grid {
-    grid-template-columns: 1fr;
+  .bozkir-hero-landscape {
+    opacity: 0.45;
   }
+}
 
+@media (max-width: 768px) {
+  .fields-grid,
+  .field-form-grid,
   .charts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .rotation-grid {
     grid-template-columns: 1fr;
   }
 
@@ -743,9 +1459,12 @@ button:disabled {
   }
 }
 
-/* =========================================
-   17. KÜÇÜK EKRANLAR
-========================================= */
+@media (max-width: 700px) {
+  .bozkir-calendar-grid,
+  .rotation-grid.bozkir-water-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 600px) {
   .sidebar {
@@ -756,16 +1475,12 @@ button:disabled {
     padding: 18px;
   }
 
-  .stats-grid {
+  .stats-grid,
+  .rotation-grid {
     grid-template-columns: 1fr;
   }
 
-  .welcome {
-    align-items: flex-start;
-    gap: 15px;
-    flex-direction: column;
-  }
-
+  .welcome,
   .fields-header {
     align-items: flex-start;
     flex-direction: column;
@@ -779,15 +1494,29 @@ button:disabled {
     width: 100%;
   }
 
-  .field-form-section {
-    padding: 16px;
-  }
-
+  .field-form-section,
   .field-card {
     padding: 17px;
   }
 
-  .field-count {
+  .bozkir-setup-grid .priority-card {
+    padding: 20px;
+  }
+
+  .bozkir-panel-header h2 {
+    font-size: 20px;
+  }
+
+  .bozkir-priority-illustration {
+    display: none;
+  }
+
+  .bozkir-priority-content .priority-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bozkir-hero-content p {
     font-size: 13px;
   }
 
@@ -796,53 +1525,16 @@ button:disabled {
   }
 }
 
-/* Bozkir rotation usability improvements */
-.bozkir-calendar-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-top:20px; }
-.bozkir-calendar-grid .rotation-card { padding:18px; }
-.bozkir-calendar-grid .priority-item label { display:flex; flex-direction:column; gap:6px; }
-.bozkir-calendar-grid input { max-width:100%; width:100%; box-sizing:border-box; padding:7px; border:1px solid #d6dfd7; border-radius:6px; }
-.bozkir-year-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
-.bozkir-year-actions button { margin:0; }
-.bozkir-crop-heading { display:flex; align-items:center; gap:10px; }
-.bozkir-crop-heading h3 { margin:0; }
-.bozkir-crop-info { position:relative; cursor:help; outline-offset:3px; }
-.bozkir-crop-icon { font-size:25px; display:inline-flex; padding:3px; border-radius:7px; background:#eff5e9; }
-.bozkir-crop-tooltip { position:absolute; z-index:30; top:100%; left:0; width:230px; display:none; flex-direction:column; gap:6px; background:white; color:#243a2c; border:1px solid #dbe6dc; box-shadow:0 10px 30px #183b2530; padding:13px; border-radius:10px; font-size:13px; line-height:1.4; }
-.bozkir-crop-tooltip em { color:#64776a; }
-.bozkir-crop-info:hover .bozkir-crop-tooltip, .bozkir-crop-info:focus .bozkir-crop-tooltip, .bozkir-crop-info:focus-within .bozkir-crop-tooltip { display:flex; }
-@media(max-width:1200px) { .bozkir-calendar-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:700px) { .bozkir-calendar-grid { grid-template-columns:1fr; } }
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
 
-/* Crop cards: consistent alignment and a designed, accessible info popover */
-.bozkir-calendar-grid { grid-template-columns:repeat(4,minmax(0,1fr)); align-items:stretch; gap:16px; }
-.bozkir-calendar-grid > .rotation-card { display:flex; flex-direction:column; min-width:0; padding:18px; overflow:visible; }
-.bozkir-crop-heading { min-height:42px; margin-bottom:14px; justify-content:space-between; gap:6px; }
-.bozkir-crop-heading h3 { font-size:19px; }
-.bozkir-crop-info { position:relative; }
-.bozkir-crop-info-trigger { display:inline-flex; align-items:center; gap:5px; padding:6px 9px; border:1px solid #d8e7d9; border-radius:999px; background:#edf5e9; color:#1d6546; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; }
-.bozkir-crop-info-trigger:hover, .bozkir-crop-info-trigger:focus-visible { background:#d9ecd8; outline:2px solid #9bc9a5; outline-offset:2px; }
-.bozkir-crop-popover { position:absolute; top:calc(100% + 10px); right:0; z-index:100; width:260px; border-radius:16px; background:white; color:#193e2e; border:1px solid #d7e4d9; box-shadow:0 18px 48px rgba(20,49,32,.22); opacity:0; visibility:hidden; transform:translateY(-5px); transition:opacity .16s,transform .16s,visibility .16s; pointer-events:none; overflow:hidden; }
-.bozkir-crop-info:hover .bozkir-crop-popover, .bozkir-crop-info:focus-within .bozkir-crop-popover { opacity:1; visibility:visible; transform:translateY(0); }
-.bozkir-crop-popover-art { height:102px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(145deg,#d5e7bd,#9bc68c 65%,#70a17b); }
-.bozkir-crop-popover-chickpea .bozkir-crop-popover-art, .bozkir-crop-popover-lentil .bozkir-crop-popover-art { background:linear-gradient(145deg,#e4e6b6,#b4ce8d 60%,#6a9d72); }
-.bozkir-crop-popover-sun { position:absolute; top:8px; right:18px; color:#fff4c6; font-size:29px; }
-.bozkir-crop-popover-plant { font-size:66px; filter:drop-shadow(0 7px 5px rgba(30,70,40,.22)); position:relative; z-index:1; }
-.bozkir-crop-popover-land { position:absolute; bottom:-16px; left:-10%; width:120%; height:40px; background:#5e8d57; border-radius:50%; }
-.bozkir-crop-popover-body { display:flex; flex-direction:column; gap:5px; padding:15px 17px 16px; }
-.bozkir-crop-type { align-self:flex-start; border-radius:999px; padding:3px 8px; background:#e9f3e7; color:#39734b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; }
-.bozkir-crop-popover-body strong { font-size:18px; }
-.bozkir-crop-popover-body em { color:#6e8274; font-size:12px; }
-.bozkir-crop-popover-body p { font-size:12px; line-height:1.5; margin:6px 0; }
-.bozkir-crop-popover-body small { color:#8b9b8f; font-size:10px; }
-.bozkir-kc-note { font-size:12px; color:#6b786e; min-height:52px; }
-.bozkir-calendar-footer { display:flex; flex-direction:column; gap:11px; margin-top:auto; padding-top:17px; min-height:195px; }
-.bozkir-calendar-basis { min-height:38px; font-size:12px; color:#657b6c; margin:0; }
-.bozkir-calendar-links { display:flex; flex-direction:column; gap:7px; min-height:52px; font-size:12px; }
-.bozkir-reset-button { align-self:flex-start; margin-top:auto !important; }
-.bozkir-year-actions { gap:14px; padding-top:8px; }
-.bozkir-year-actions button { margin:0; }
-.bozkir-analysis-field-picker { background:#fff; border:1px solid #e1e8e2; border-radius:14px; padding:20px 24px; margin:22px 0 16px; max-width:700px; display:flex; flex-direction:column; gap:10px; }
-.bozkir-analysis-field-picker label { font-size:18px; font-weight:700; color:#193e2e; }
-.bozkir-analysis-field-picker select { width:100%; padding:10px 12px; border:1px solid #cbd8cd; border-radius:8px; background:white; font-size:14px; }
-@media(max-width:1200px) { .bozkir-calendar-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:700px) { .bozkir-calendar-grid { grid-template-columns:1fr; } }
+
+.bozkir-water-grid > .rotation-card:last-child {
+  border-top: 3px solid #e7b74d;
+}

@@ -4,6 +4,7 @@ import math
 import pandas as pd
 
 from crop_data import get_crop
+from location_climate import START_YEAR, END_YEAR
 from location_climate import fetch_nasa_data
 
 
@@ -80,11 +81,11 @@ def analyze_crop_season(
     results = []
 
     first_season_year = (
-        2006 if crosses_year else 2005
+        START_YEAR + 1 if crosses_year else START_YEAR
     )
 
     for season_year in range(
-        first_season_year, 2025
+        first_season_year, END_YEAR + 1
     ):
         if crosses_year:
             season_start = pd.Timestamp(
