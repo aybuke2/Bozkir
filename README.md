@@ -212,37 +212,6 @@ Additional crops and region-specific calendars may be added in future versions.
 - GitHub
 - pytest
 
-## Project Structure
-
-```text
-Bozkir/
-├── backend/
-│   ├── main.py
-│   ├── decision_api.py
-│   ├── climate_analog.py
-│   ├── climate_history.py
-│   ├── location_climate.py
-│   ├── eto_data.py
-│   ├── eto_calculator.py
-│   ├── crop_profiles.py
-│   ├── crop_water.py
-│   ├── rotation_engine.py
-│   ├── requirements.txt
-│   └── test_*.py
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── services/
-│   ├── package.json
-│   └── .env.example
-├── docs/
-│   ├── DATA_MODES.md
-│   └── SCIENTIFIC_ASSUMPTIONS.md
-└── README.md
-```
-
 ## Getting Started
 
 ### Prerequisites
@@ -451,8 +420,6 @@ https://www.fao.org/4/s2022e/s2022e07.htm
 **Challenge:** Field Shift: Adapting Farms with NASA Data
 
 **Event:** NASA Space Apps Challenge 2026
-
-**Repository:** https://github.com/aybuke2/Bozkir
 
 ---
 
