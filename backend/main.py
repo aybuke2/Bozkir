@@ -1,28 +1,30 @@
 
 import requests
-from crop_water import router as crop_water_router
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+from climate_history import router as climate_history_router
 from crop_water import router as crop_water_router
+from decision_api import router as decision_router
+
 from crop_data import CROPS
 from crop_profiles import get_crop_profiles
 from crop_season import analyze_crop_season
 from location_climate import analyze_location
 from rainfall_analysis import analyze_rainfall_period
 from rotation_engine import compare_rotations
-from decision_api import router as decision_router
 
 app = FastAPI(
     title="Bozkır API",
     description=(
-        "NASA POWER verilerine dayalı "
-        "tarımsal karar destek sistemi"
+        "Agricultural decision-support prototype "
+        "using NASA POWER Earth observation data."
     ),
-    version="0.4.0",
+    version="0.5.0",
 )
-app.include_router(decision_router)
-app.include_router(crop_water_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -34,17 +36,15 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
+app.include_router(decision_router)
+app.include_router(crop_water_router)
+app.include_router(climate_history_router)
+
 
 class RotationRequest(BaseModel):
-    current: list[str] = Field(
-        min_length=2, max_length=10
-    )
-    alternative_a: list[str] = Field(
-        min_length=2, max_length=10
-    )
-    alternative_b: list[str] = Field(
-        min_length=2, max_length=10
-    )
+    current: list[str] = Field(min_length=2, max_length=10)
+    alternative_a: list[str] = Field(min_length=2, max_length=10)
+    alternative_b: list[str] = Field(min_length=2, max_length=10)
 
 
 class LocationRequest(BaseModel):
@@ -52,17 +52,12 @@ class LocationRequest(BaseModel):
     longitude: float = Field(ge=-180, le=180)
 
 
-class LocationRotationRequest(
-    LocationRequest,
-    RotationRequest,
-):
+class LocationRotationRequest(LocationRequest, RotationRequest):
     pass
 
 
 class RainfallRequest(LocationRequest):
-    months: list[int] = Field(
-        min_length=1, max_length=12
-    )
+    months: list[int] = Field(min_length=1, max_length=12)
 
 
 class CropSeasonRequest(LocationRequest):
@@ -71,12 +66,20 @@ class CropSeasonRequest(LocationRequest):
     end_month: int = Field(ge=1, le=12)
 
 
+def rotation_payload(request):
+    return {
+        "Current": request.current,
+        "Alternative A": request.alternative_a,
+        "Alternative B": request.alternative_b,
+    }
+
+
 @app.get("/")
 def home():
     return {
         "project": "Bozkır",
         "status": "running",
-        "version": "0.4.0",
+        "version": "0.5.0",
     }
 
 
@@ -100,26 +103,18 @@ def list_crop_profiles():
 
 @app.post("/compare")
 def compare(request: RotationRequest):
-    rotations = {
-        "Mevcut": request.current,
-        "Alternatif A": request.alternative_a,
-        "Alternatif B": request.alternative_b,
-    }
-
     try:
-        return compare_rotations(rotations)
-
-    except ValueError as error:
+        return compare_rotations(rotation_payload(request))
+    except ValueError as exc:
         raise HTTPException(
             status_code=400,
-            detail=str(error),
-        ) from error
-
-    except FileNotFoundError as error:
+            detail=str(exc),
+        ) from exc
+    except FileNotFoundError as exc:
         raise HTTPException(
             status_code=503,
-            detail="Konya iklim dosyaları bulunamadı.",
-        ) from error
+            detail="Local climate reference files are unavailable.",
+        ) from exc
 
 
 @app.post("/climate/location")
@@ -129,52 +124,40 @@ def climate_by_location(request: LocationRequest):
             request.latitude,
             request.longitude,
         )
-
-    except ValueError as error:
+    except ValueError as exc:
         raise HTTPException(
             status_code=400,
-            detail=str(error),
-        ) from error
-
-    except requests.RequestException as error:
+            detail=str(exc),
+        ) from exc
+    except requests.RequestException as exc:
         raise HTTPException(
             status_code=502,
-            detail="NASA POWER servisine erişilemedi.",
-        ) from error
+            detail="NASA POWER service is unavailable.",
+        ) from exc
 
 
 @app.post("/compare/location")
-def compare_by_location(
-    request: LocationRotationRequest,
-):
+def compare_by_location(request: LocationRotationRequest):
     try:
         climate = analyze_location(
             request.latitude,
             request.longitude,
         )
 
-        rotations = {
-            "Mevcut": request.current,
-            "Alternatif A": request.alternative_a,
-            "Alternatif B": request.alternative_b,
-        }
-
         return compare_rotations(
-            rotations,
+            rotation_payload(request),
             climate_context=climate,
         )
-
-    except ValueError as error:
+    except ValueError as exc:
         raise HTTPException(
             status_code=400,
-            detail=str(error),
-        ) from error
-
-    except requests.RequestException as error:
+            detail=str(exc),
+        ) from exc
+    except requests.RequestException as exc:
         raise HTTPException(
             status_code=502,
-            detail="NASA POWER servisine erişilemedi.",
-        ) from error
+            detail="NASA POWER service is unavailable.",
+        ) from exc
 
 
 @app.post("/rainfall/period")
@@ -185,24 +168,20 @@ def rainfall_by_period(request: RainfallRequest):
             request.longitude,
             request.months,
         )
-
-    except ValueError as error:
+    except ValueError as exc:
         raise HTTPException(
             status_code=400,
-            detail=str(error),
-        ) from error
-
-    except requests.RequestException as error:
+            detail=str(exc),
+        ) from exc
+    except requests.RequestException as exc:
         raise HTTPException(
             status_code=502,
-            detail="NASA POWER servisine erişilemedi.",
-        ) from error
+            detail="NASA POWER service is unavailable.",
+        ) from exc
 
 
 @app.post("/crop/season")
-def crop_season_by_location(
-    request: CropSeasonRequest,
-):
+def crop_season_by_location(request: CropSeasonRequest):
     try:
         return analyze_crop_season(
             latitude=request.latitude,
@@ -211,15 +190,13 @@ def crop_season_by_location(
             start_month=request.start_month,
             end_month=request.end_month,
         )
-
-    except ValueError as error:
+    except ValueError as exc:
         raise HTTPException(
             status_code=400,
-            detail=str(error),
-        ) from error
-
-    except requests.RequestException as error:
+            detail=str(exc),
+        ) from exc
+    except requests.RequestException as exc:
         raise HTTPException(
             status_code=502,
-            detail="NASA POWER servisine erişilemedi.",
-        ) from error
+            detail="NASA POWER service is unavailable.",
+        ) from exc

@@ -1,50 +1,88 @@
 
 import {
-  LineChart,
-  Line,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
-  ResponsiveContainer
 } from "recharts";
+import { CloudRain } from "lucide-react";
 
-const rainfallData = [
-  { year: "2019", rainfall: 310 },
-  { year: "2020", rainfall: 280 },
-  { year: "2021", rainfall: 260 },
-  { year: "2022", rainfall: 340 },
-  { year: "2023", rainfall: 295 },
-  { year: "2024", rainfall: 320 }
-];
+export default function RainfallChart({ data = [] }) {
+  const chartData = (Array.isArray(data) ? data : [])
+    .map((item) => ({
+      year: String(item.year ?? ""),
+      rainfall: Number(
+        item.rainfall_mm ??
+        item.total_rainfall_mm ??
+        item.precipitation_mm ??
+        0
+      ),
+    }))
+    .filter(
+      (item) =>
+        item.year &&
+        Number.isFinite(item.rainfall)
+    );
 
-function RainfallChart({ data = rainfallData }) {
   return (
-    <div className="chart-card">
-      <h3>Yıllık Yağış Değişimi</h3>
-      <p>Yıllık toplam yağış (mm)</p>
+    <section className="chart-card">
+      <div className="bozkir-chart-heading">
+        <span className="bozkir-chart-icon">
+          <CloudRain size={22} />
+        </span>
+        <div>
+          <h3>Historical Annual Rainfall</h3>
+          <p>Annual precipitation totals (mm)</p>
+        </div>
+      </div>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-
-          <XAxis dataKey="year" />
-
-          <YAxis />
-
-          <Tooltip />
-
-          <Line
-            type="monotone"
-            dataKey="rainfall"
-            stroke="#286443"
-            strokeWidth={3}
-            name="Yağış"
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+      {chartData.length === 0 ? (
+        <p>No rainfall data available.</p>
+      ) : (
+        <div className="bozkir-chart-area">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{ top: 12, right: 12, left: 0, bottom: 8 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#e6ece5"
+              />
+              <XAxis
+                dataKey="year"
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+                axisLine={false}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+                axisLine={false}
+                width={45}
+                unit=" mm"
+              />
+              <Tooltip
+                formatter={(value) => [
+                  `${Number(value).toFixed(2)} mm`,
+                  "Rainfall",
+                ]}
+              />
+              <Bar
+                dataKey="rainfall"
+                fill="#4c8a60"
+                radius={[5, 5, 0, 0]}
+                maxBarSize={34}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </section>
   );
 }
-
-export default RainfallChart;

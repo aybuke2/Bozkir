@@ -1,174 +1,137 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import {
-  Map,
-  Sprout,
-  Droplets,
-  Activity,
-  Plus
-} from "lucide-react";
+import { Map, Sprout, Plus, MapPin } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import StatCard from "../components/StatCard";
 
-function Dashboard() {
-  const navigate = useNavigate();
+const CROP_NAMES = {
+  wheat: "Wheat", barley: "Barley",
+  chickpea: "Chickpea", lentil: "Lentil",
+  fallow: "Fallow",
+  "Buğday": "Wheat", "Arpa": "Barley",
+  "Nohut": "Chickpea", "Mercimek": "Lentil",
+  "Nadas": "Fallow",
+};
 
-  const [fields] = useState(() => {
-    try {
-      return JSON.parse(
-        localStorage.getItem("bozkir_fields") || "[]"
-      );
-    } catch {
-      return [];
-    }
-  });
+const IRRIGATION_NAMES = {
+  rainfed: "Rainfed", irrigated: "Irrigated",
+  "Kuru tarım": "Rainfed", "Sulu tarım": "Irrigated",
+};
+
+function readFields() {
+  try {
+    const fields = JSON.parse(
+      localStorage.getItem("bozkir_fields") || "[]"
+    );
+    return Array.isArray(fields) ? fields : [];
+  } catch {
+    return [];
+  }
+}
+
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const [fields] = useState(readFields);
 
   const totalArea = fields.reduce(
-    (total, field) => total + Number(field.area || 0),
+    (sum, field) => sum + Number(field.area || 0),
     0
   );
 
+  function openAnalysis(field) {
+    localStorage.setItem(
+      "selectedField",
+      JSON.stringify(field)
+    );
+    navigate("/analysis");
+  }
+
   return (
     <div className="app-layout">
-
       <Sidebar />
-
       <main className="main-content">
-
         <Navbar />
 
         <section className="welcome">
-
           <div>
-            <h1>Hoş geldin!</h1>
+            <h1>Welcome to Bozkır!</h1>
             <p>
-              Tarla verilerini incele ve rotasyonunu planla.
+              Explore your fields and compare crop rotation scenarios.
             </p>
           </div>
-
           <button onClick={() => navigate("/new-field")}>
             <Plus size={18} />
-            Yeni Tarla Ekle
+            Add New Field
           </button>
-
         </section>
-
-        {/* İstatistikler */}
 
         <section className="stats-grid">
-
           <StatCard
-            title="Kayıtlı Tarlalar"
+            title="Saved Fields"
             value={fields.length}
-            description="Toplam kayıt"
+            description="Fields saved in this browser"
             icon={<Map />}
           />
-
           <StatCard
-            title="Toplam Alan"
-            value={`${totalArea.toLocaleString("tr-TR")} ha`}
-            description="Kayıtlı tarla alanı"
+            title="Total Field Area"
+            value={`${totalArea.toLocaleString("en-US")} ha`}
+            description="Combined registered area"
             icon={<Sprout />}
           />
-
-          <StatCard
-            title="Ortalama Yağış"
-            value="320 mm"
-            description="Örnek yıllık veri"
-            icon={<Droplets />}
-          />
-
-          <StatCard
-            title="Analiz Sayısı"
-            value="0"
-            description="Tamamlanan analiz"
-            icon={<Activity />}
-          />
-
         </section>
 
-        {/* Kayıtlı tarlalar */}
-
         <section className="fields-section">
-
           <div className="fields-header">
             <div>
-              <h2>Tarlalarım</h2>
-              <p>Kayıtlı arazilerine göz at.</p>
+              <h2>My Fields</h2>
+              <p>Explore your saved fields.</p>
             </div>
-
-            <button
-              onClick={() => navigate("/new-field")}
-            >
-              Tüm Tarlaları Gör
+            <button onClick={() => navigate("/new-field")}>
+              View All Fields
             </button>
           </div>
 
           {fields.length === 0 ? (
-
             <div className="empty-fields">
               <Sprout size={40} />
-
-              <h3>Henüz kayıtlı tarla yok.</h3>
-
-              <p>İlk tarlanı ekleyerek başlayabilirsin.</p>
-
-              <button
-                onClick={() => navigate("/new-field")}
-              >
-                + Yeni Tarla Ekle
+              <h3>No fields saved yet.</h3>
+              <p>Add your first field to get started.</p>
+              <button onClick={() => navigate("/new-field")}>
+                Add Field
               </button>
             </div>
-
           ) : (
-
             <div className="fields-grid">
-
-              {fields.slice(0, 3).map(field => (
-
-                <div
-                  className="field-card"
-                  key={field.id}
-                >
-
+              {fields.slice(0, 3).map((field) => (
+                <div className="field-card" key={field.id}>
                   <h3>{field.fieldName}</h3>
-
                   <p>
-                    Alan: {field.area} hektar
+                    <MapPin size={15} />{" "}
+                    {Number(field.latitude).toFixed(4)},{" "}
+                    {Number(field.longitude).toFixed(4)}
                   </p>
-
+                  <p>Area: {field.area} ha</p>
                   <p>
-                    Mevcut ürün: {field.crop}
+                    Current Crop:{" "}
+                    {CROP_NAMES[field.crop] || field.crop}
                   </p>
-
                   <p>
-                    Sulama: {field.irrigation}
+                    Irrigation:{" "}
+                    {IRRIGATION_NAMES[field.irrigation] ||
+                      field.irrigation}
                   </p>
-
-                  <button
-                    onClick={() => navigate("/new-field")}
-                  >
-                    İncele
+                  <button onClick={() => openAnalysis(field)}>
+                    View Analysis
                   </button>
-
                 </div>
-
               ))}
-
             </div>
-
           )}
-
         </section>
-
       </main>
-
     </div>
   );
 }
-
-export default Dashboard;

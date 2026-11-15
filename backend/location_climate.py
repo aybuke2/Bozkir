@@ -12,11 +12,16 @@ NASA_POWER_URL = (
 )
 
 START_YEAR = 2005
-END_YEAR = 2024
+END_YEAR = date.today().year - 1
+
+
+def latest_requested_day():
+    """Conservative lag; actual usable dates are validated from NASA responses."""
+    return date.today() - timedelta(days=10)
 
 
 @lru_cache(maxsize=32)
-def fetch_nasa_data(latitude, longitude):
+def _fetch_nasa_data_cached(latitude, longitude, end_date):
     """
     Seçilen koordinat için NASA POWER günlük
     yağış ve sıcaklık verilerini getirir.
@@ -28,7 +33,7 @@ def fetch_nasa_data(latitude, longitude):
         "longitude": longitude,
         "latitude": latitude,
         "start": f"{START_YEAR}0101",
-        "end": f"{END_YEAR}1231",
+        "end": end_date,
         "format": "JSON",
         "time-standard": "LST",
     }
@@ -99,6 +104,10 @@ def fetch_nasa_data(latitude, longitude):
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
+
+
+def fetch_nasa_data(latitude, longitude):
+    return _fetch_nasa_data_cached(latitude, longitude, latest_requested_day().strftime("%Y%m%d")).copy()
 
 
 def analyze_location(latitude, longitude):
@@ -183,7 +192,8 @@ def analyze_location(latitude, longitude):
     return {
         "latitude": latitude,
         "longitude": longitude,
-        "period": f"{START_YEAR}-{END_YEAR}",
+        "period": f"{min(complete_years)}-{max(complete_years)}",
+        "latest_available_date": str(df["date"].max().date()),
         "complete_years": len(complete_years),
         "mean_annual_rainfall_mm": round(
             float(annual_rainfall_mean), 2

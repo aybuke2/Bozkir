@@ -1,20 +1,22 @@
 
-"""Bozkır: NASA POWER ve FAO-56 ile açıklanabilir rotasyon karşılaştırması.
+"""Explainable crop rotation screening using NASA POWER and FAO-56.
 
-Sonuçlar prototip senaryo göstergeleridir; sulama ihtiyacı veya
-doğrulanmış tarımsal öneri değildir.
+Results are prototype indicators, not validated agronomic
+recommendations or irrigation requirements.
 """
 
 from datetime import date, timedelta
 from typing import Dict, List, Literal
 
+import requests
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, model_validator
 
 from crop_data import get_crop
+from crop_water import calculate_kc
+from climate_analog import weather_for_season
 from eto_calculator import calculate_eto_dataframe
 from location_climate import fetch_nasa_data
-from crop_water import calculate_kc
 
 
 router = APIRouter(
@@ -25,12 +27,10 @@ router = APIRouter(
 
 class CropCalendar(BaseModel):
     planting_date: date
-
     initial_days: int = Field(gt=0, le=180)
     development_days: int = Field(gt=0, le=180)
     mid_days: int = Field(gt=0, le=180)
     late_days: int = Field(gt=0, le=180)
-
     kc_initial: float = Field(ge=0, le=2)
     kc_mid: float = Field(ge=0, le=2)
     kc_end: float = Field(ge=0, le=2)
@@ -40,46 +40,33 @@ class DecisionRequest(BaseModel):
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
 
-    current: List[str] = Field(
-        min_length=2, max_length=10
-    )
-    alternative_a: List[str] = Field(
-        min_length=2, max_length=10
-    )
-    alternative_b: List[str] = Field(
-        min_length=2, max_length=10
-    )
+    current: List[str] = Field(min_length=2, max_length=10)
+    alternative_a: List[str] = Field(min_length=2, max_length=10)
+    alternative_b: List[str] = Field(min_length=2, max_length=10)
 
     crop_calendars: Dict[str, CropCalendar]
-
-    priority: Literal[
-        "balanced", "water", "soil"
-    ] = "balanced"
+    priority: Literal["balanced", "water", "soil"] = "balanced"
 
     @model_validator(mode="after")
     def check_calendars(self):
         selected = set(
-            self.current
-            + self.alternative_a
-            + self.alternative_b
+            self.current + self.alternative_a + self.alternative_b
         )
 
         for crop_id in selected:
             try:
                 crop = get_crop(crop_id)
-            except (KeyError, ValueError):
+            except (KeyError, ValueError) as exc:
                 raise ValueError(
-                    f"Bilinmeyen ürün: {crop_id}"
-                )
+                    f"Unknown crop: {crop_id}"
+                ) from exc
 
             if crop is None:
-                raise ValueError(
-                    f"Bilinmeyen ürün: {crop_id}"
-                )
+                raise ValueError(f"Unknown crop: {crop_id}")
 
             if crop_id not in self.crop_calendars:
                 raise ValueError(
-                    f"Eksik ürün takvimi: {crop_id}"
+                    f"Missing crop calendar: {crop_id}"
                 )
 
         return self
@@ -88,41 +75,19 @@ class DecisionRequest(BaseModel):
 def _crop_attr(crop, key):
     if isinstance(crop, dict):
         return crop[key]
-
     return getattr(crop, key)
 
 
 def structural_score(rotation):
-    """
-    Şeffaf prototip rotasyon puanı.
+    """Transparent structural rotation score (0–100)."""
 
-    Gerçek bir toprak sağlığı ölçümü değildir.
-    """
-
-    crops = [
-        get_crop(crop_id)
-        for crop_id in rotation
-    ]
-
-    families = [
-        _crop_attr(crop, "family")
-        for crop in crops
-    ]
-
-    legumes = [
-        _crop_attr(crop, "is_legume")
-        for crop in crops
-    ]
+    crops = [get_crop(crop_id) for crop_id in rotation]
+    families = [_crop_attr(crop, "family") for crop in crops]
+    legumes = [_crop_attr(crop, "is_legume") for crop in crops]
 
     score = 50
-
-    score += 10 * max(
-        0, len(set(families)) - 1
-    )
-
-    score += 5 * max(
-        0, len(set(rotation)) - 1
-    )
+    score += 10 * max(0, len(set(families)) - 1)
+    score += 5 * max(0, len(set(rotation)) - 1)
 
     if any(legumes):
         score += 10
@@ -130,19 +95,13 @@ def structural_score(rotation):
     for i in range(1, len(rotation)):
         if rotation[i] == rotation[i - 1]:
             score -= 15
-
         if families[i] == families[i - 1]:
             score -= 10
 
     return max(0, min(100, score))
 
 
-def _crop_water_metrics(
-    crop_id,
-    calendar,
-    eto_df,
-    rain_df,
-):
+def _crop_water_metrics(crop_id, calendar, eto_df, rain_df):
     stages = [
         calendar.initial_days,
         calendar.development_days,
@@ -151,41 +110,12 @@ def _crop_water_metrics(
     ]
 
     total_days = sum(stages)
-
     start = calendar.planting_date
+    end = start + timedelta(days=total_days - 1)
 
-    end = start + timedelta(
-        days=total_days - 1
+    eto, rain, data_mode, latest_date = weather_for_season(
+        eto_df, rain_df, start, total_days
     )
-
-    eto = eto_df.loc[
-        (
-            eto_df["date"].dt.date >= start
-        )
-        & (
-            eto_df["date"].dt.date <= end
-        )
-    ].sort_values("date")
-
-    rain = rain_df.loc[
-        (
-            rain_df["date"].dt.date >= start
-        )
-        & (
-            rain_df["date"].dt.date <= end
-        )
-    ].sort_values("date")
-
-    if (
-        len(eto) != total_days
-        or eto["date"].dt.date.nunique() != total_days
-        or len(rain) != total_days
-        or rain["date"].dt.date.nunique() != total_days
-    ):
-        raise ValueError(
-            f"{crop_id}: Seçilen tarihler için "
-            "eksiksiz günlük veri bulunamadı."
-        )
 
     coefficients = [
         calendar.kc_initial,
@@ -194,72 +124,43 @@ def _crop_water_metrics(
     ]
 
     kc_values = [
-        calculate_kc(
-            i, stages, coefficients
-        )[0]
+        calculate_kc(i, stages, coefficients)[0]
         for i in range(total_days)
     ]
 
-    eto_total = float(
-        eto["eto_mm_day"].sum()
-    )
+    eto_total = float(eto["eto_mm_day"].sum())
 
     etc_total = sum(
         float(value) * kc
-        for value, kc in zip(
-            eto["eto_mm_day"],
-            kc_values,
-        )
+        for value, kc in zip(eto["eto_mm_day"], kc_values)
     )
 
-    rain_total = float(
-        rain["rainfall_mm"].sum()
-    )
-
-    gap = max(
-        0.0,
-        etc_total - rain_total,
-    )
-
-    gap_ratio = (
-        gap / etc_total
-        if etc_total > 0
-        else 0.0
-    )
+    rain_total = float(rain["rainfall_mm"].sum())
+    gap = max(0.0, etc_total - rain_total)
+    gap_ratio = gap / etc_total if etc_total > 0 else 0.0
 
     return {
         "crop_id": crop_id,
+        "data_mode": data_mode,
+        "latest_available_date": latest_date,
         "planting_date": str(start),
         "end_date": str(end),
         "eto_mm": round(eto_total, 2),
         "etc_mm": round(etc_total, 2),
-        "precipitation_mm": round(
-            rain_total, 2
-        ),
-        "gross_precipitation_gap_mm": round(
-            gap, 2
-        ),
-        "gap_ratio": round(
-            gap_ratio, 4
-        ),
+        "precipitation_mm": round(rain_total, 2),
+        "gross_precipitation_gap_mm": round(gap, 2),
+        "gap_ratio": round(gap_ratio, 4),
         "water_screening_score": round(
             100 * (1 - gap_ratio), 2
         ),
         "interpretation": (
-            "Tarama göstergesi; "
-            "sulama gereksinimi değildir."
+            "Prototype water screening indicator; "
+            "not an irrigation requirement."
         ),
     }
 
 
 def build_decision(request: DecisionRequest):
-    """
-    Üç rotasyonu karşılaştırır.
-
-    Aynı konum için ETo ve yağış verilerini
-    birer kez alır.
-    """
-
     eto_df = calculate_eto_dataframe(
         request.latitude,
         request.longitude,
@@ -292,9 +193,7 @@ def build_decision(request: DecisionRequest):
         "soil": (0.7, 0.3),
     }
 
-    soil_weight, water_weight = weights[
-        request.priority
-    ]
+    soil_weight, water_weight = weights[request.priority]
 
     options = {
         "current": request.current,
@@ -308,34 +207,27 @@ def build_decision(request: DecisionRequest):
         soil = structural_score(rotation)
 
         water = sum(
-            crop_metrics[crop_id][
-                "water_screening_score"
-            ]
+            crop_metrics[crop_id]["water_screening_score"]
             for crop_id in rotation
         ) / len(rotation)
 
-        total = (
-            soil_weight * soil
-            + water_weight * water
-        )
+        total = soil_weight * soil + water_weight * water
 
         explanations = [
             (
-                f"Yapısal rotasyon puanı: "
-                f"{soil}/100. "
-                "Ürün çeşitliliği, familya tekrarları "
-                "ve baklagil varlığı değerlendirildi."
+                f"Rotation structure score: {soil}/100. "
+                "Crop diversity, repeated families and "
+                "the presence of legumes were evaluated."
             ),
             (
-                f"Su tarama puanı: "
-                f"{water:.1f}/100. "
-                "Senaryo ETc ve brüt yağış farkı "
-                "kullanıldı."
+                f"Water screening score: {water:.1f}/100. "
+                "Estimated crop ET and gross precipitation "
+                "were used for this prototype indicator."
             ),
             (
-                f"Öncelik: {request.priority}. "
-                f"Yapısal ağırlık: {soil_weight:.0%}, "
-                f"su ağırlığı: {water_weight:.0%}."
+                f"Priority: {request.priority}. "
+                f"Structure weight: {soil_weight:.0%}; "
+                f"water weight: {water_weight:.0%}."
             ),
         ]
 
@@ -343,12 +235,8 @@ def build_decision(request: DecisionRequest):
             "option_id": option_id,
             "rotation": rotation,
             "structural_score": soil,
-            "water_screening_score": round(
-                water, 2
-            ),
-            "combined_prototype_score": round(
-                total, 2
-            ),
+            "water_screening_score": round(water, 2),
+            "combined_prototype_score": round(total, 2),
             "explanations": explanations,
         })
 
@@ -359,9 +247,7 @@ def build_decision(request: DecisionRequest):
         )
     )
 
-    for rank, item in enumerate(
-        comparisons, start=1
-    ):
+    for rank, item in enumerate(comparisons, start=1):
         item["rank"] = rank
 
     return {
@@ -375,41 +261,36 @@ def build_decision(request: DecisionRequest):
         "methodology": {
             "weather_source": "NASA POWER",
             "eto_method": (
-                "FAO-56 Penman-Monteith; "
-                "yaklaşık nem ve rakım hesabı"
+                "FAO-56 Penman-Monteith; approximate humidity "
+                "and elevation inputs"
             ),
             "etc_method": (
-                "FAO-56 single Kc; "
-                "kullanıcı tarafından verilen "
-                "gelişme dönemleri ve katsayılar"
+                "FAO-56 single Kc; observed seasons or historical seasonal analogues, "
+                "FAO-56 reference mid/end coefficients and illustrative "
+                "initial Kc; locally unvalidated"
             ),
             "structural_score": (
-                "Doğrulanmamış, şeffaf prototip "
-                "puanlama yöntemi"
+                "Transparent, unvalidated prototype scoring"
             ),
             "water_score": (
-                "100 * (1 - max(0, ETc - brüt yağış) / ETc)"
+                "100 * (1 - max(0, ETc - gross rainfall) / ETc)"
             ),
             "important_limitations": [
                 (
-                    "Ürün takvimleri bağımsız "
-                    "senaryolardır; ardışık rotasyon "
-                    "yılları simüle edilmemiştir."
+                    "Future seasons use historical daily climatology, not forecasts. Crop calendars are independent scenarios; "
+                    "successive rotation years are not simulated."
                 ),
                 (
-                    "Brüt yağış etkin yağış değildir. "
-                    "Hesaplanan fark sulama ihtiyacı "
-                    "olarak yorumlanamaz."
+                    "Gross precipitation is not effective rainfall. "
+                    "The calculated gap is not an irrigation requirement."
                 ),
                 (
-                    "Toprak tipi, toprak su depolaması, "
-                    "sulama, verim ve yerel takvim "
-                    "doğrulaması henüz yoktur."
+                    "Soil type, soil water storage, irrigation, yield "
+                    "and local crop calendar validation are not included."
                 ),
                 (
-                    "Puanlar doğrulanmış tarımsal "
-                    "öneriler değil, demo amaçlı "
-                    "karşılaştırma göstergeleridir."
+                    "Scores are demonstration indicators, "
+                    "not validated agricultural recommendations."
                 ),
             ],
         },
@@ -425,4 +306,10 @@ def compare_decision(request: DecisionRequest):
         raise HTTPException(
             status_code=400,
             detail=str(exc),
+        ) from exc
+
+    except requests.RequestException as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="NASA POWER service is unavailable.",
         ) from exc

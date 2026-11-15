@@ -205,7 +205,7 @@ def calculate_daily_eto(row, latitude):
         tmin=float(row["T2M_MIN"]),
         wind=float(row["WS2M"]),
         solar_radiation=float(
-            row["ALLSKY_SFC_SW_DWN"]
+            row["ALLSKY_SFC_SW_DWN"] * 3.6
         ),
         pressure=float(row["PS"]),
         latitude=latitude,

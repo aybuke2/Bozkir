@@ -2,71 +2,39 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  headers: {
-    "Content-Type": "application/json"
-  },
-  timeout: 30000
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  headers: { "Content-Type": "application/json" },
+  timeout: 120000,
 });
 
-// Anasayfa verilerini getir
-export const getHome = async () => {
-  const response = await api.get("/Home");
-  return response.data;
-};
+export function getApiError(error) {
+  const detail = error?.response?.data?.detail;
+  if (Array.isArray(detail)) {
+    return detail.map((item) => item.msg).join("; ");
+  }
+  if (typeof detail === "string") return detail;
+  if (error?.code === "ECONNABORTED") {
+    return "The analysis timed out. Please try again.";
+  }
+  if (!error?.response) {
+    return "Cannot connect to the backend. Make sure the API is running.";
+  }
+  return `Request failed (HTTP ${error.response.status}).`;
+}
 
-// Ürünleri listele
-export const getCrops = async () => {
-  const response = await api.get("/crops");
-  return response.data;
-};
+const get = async (url) => (await api.get(url)).data;
+const post = async (url, data) => (await api.post(url, data)).data;
 
-// Ürün profillerini listele
-export const getCropProfiles = async () => {
-  const response = await api.get("/crops/profiles");
-  return response.data;
-};
-
-// Genel rotasyon karşılaştırması
-export const compareRotations = async (comparisonData) => {
-  const response = await api.post("/compare", comparisonData);
-  return response.data;
-};
-
-// Konuma göre iklim verisi
-export const getClimateByLocation = async (locationData) => {
-  const response = await api.post(
-    "/climate/location",
-    locationData
-  );
-  return response.data;
-};
-
-// Konuma göre rotasyon karşılaştırması
-export const compareByLocation = async (locationData) => {
-  const response = await api.post(
-    "/compare/location",
-    locationData
-  );
-  return response.data;
-};
-
-// Belirli periyoda göre yağış verisi
-export const getRainfallByPeriod = async (periodData) => {
-  const response = await api.post(
-    "/rainfall/period",
-    periodData
-  );
-  return response.data;
-};
-
-// Konum ve sezona göre ürün önerisi
-export const getCropBySeason = async (seasonData) => {
-  const response = await api.post(
-    "/crop/season",
-    seasonData
-  );
-  return response.data;
-};
+export const getHome = () => get("/");
+export const getCrops = () => get("/crops");
+export const getCropProfiles = () => get("/crops/profiles");
+export const compareRotations = (data) => post("/compare", data);
+export const getClimateByLocation = (data) => post("/climate/location", data);
+export const getClimateHistory = (data) => post("/climate/history", data);
+export const compareByLocation = (data) => post("/compare/location", data);
+export const getRainfallByPeriod = (data) => post("/rainfall/period", data);
+export const getCropBySeason = (data) => post("/crop/season", data);
+export const getCropWater = (data) => post("/water/crop", data);
+export const compareDecision = (data) => post("/decision/compare", data);
 
 export default api;

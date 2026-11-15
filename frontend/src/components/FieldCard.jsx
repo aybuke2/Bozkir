@@ -1,14 +1,15 @@
-function FieldCard({ title, area, crop, onInspect }) {
+
+export default function FieldCard({
+  title, area, crop, onInspect,
+}) {
   return (
     <div className="field-card">
       <h3>{title}</h3>
-      <p>Alan: {area}</p>
-      <p>Mevcut ürün: {crop}</p>
-      <button onClick={onInspect}>
-        İncele
+      <p>Area: {area}</p>
+      <p>Current Crop: {crop}</p>
+      <button type="button" onClick={onInspect}>
+        View Field
       </button>
     </div>
   );
 }
-
-export default FieldCard;

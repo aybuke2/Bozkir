@@ -1,13 +1,8 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Plus,
-  MapPin,
-  Pencil,
-  Trash2,
-  X,
-  Sprout,
-  Map
+  Plus, MapPin, Pencil, Trash2, X, Sprout,
 } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
@@ -15,298 +10,303 @@ import FieldMap from "../components/FieldMap";
 
 const STORAGE_KEY = "bozkir_fields";
 
-const emptyForm = {
-  fieldName: "",
-  area: "",
-  crop: "Buğday",
-  irrigation: "Kuru tarım"
+const CROP_OPTIONS = [
+  ["wheat", "Wheat"],
+  ["barley", "Barley"],
+  ["chickpea", "Chickpea"],
+  ["lentil", "Lentil"],
+  ["fallow", "Fallow"],
+];
+
+const IRRIGATION_OPTIONS = [
+  ["rainfed", "Rainfed"],
+  ["irrigated", "Irrigated"],
+];
+
+const CROP_ALIASES = {
+  "Buğday": "wheat",
+  "Arpa": "barley",
+  "Nohut": "chickpea",
+  "Mercimek": "lentil",
+  "Nadas": "fallow",
+  "Wheat": "wheat",
+  "Barley": "barley",
+  "Chickpea": "chickpea",
+  "Lentil": "lentil",
+  "Fallow": "fallow",
 };
 
-function FieldSelection() {
+const IRRIGATION_ALIASES = {
+  "Kuru tarım": "rainfed",
+  "Sulu tarım": "irrigated",
+  "Rainfed": "rainfed",
+  "Irrigated": "irrigated",
+};
+
+const EMPTY_FORM = {
+  fieldName: "",
+  area: "",
+  crop: "wheat",
+  irrigation: "rainfed",
+};
+
+function normalizeField(field) {
+  return {
+    ...field,
+    crop: CROP_ALIASES[field.crop] || field.crop || "wheat",
+    irrigation:
+      IRRIGATION_ALIASES[field.irrigation] ||
+      field.irrigation ||
+      "rainfed",
+  };
+}
+
+function readFields() {
+  try {
+    const data = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) || "[]"
+    );
+    return Array.isArray(data) ? data.map(normalizeField) : [];
+  } catch {
+    return [];
+  }
+}
+
+function optionLabel(options, value) {
+  return options.find(([id]) => id === value)?.[1] || value;
+}
+
+export default function FieldSelection() {
   const navigate = useNavigate();
-
-  // Kayıtlı tarlaları yükle
-  const [fields, setFields] = useState(() => {
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem(STORAGE_KEY) || "[]"
-      );
-
-      return Array.isArray(saved) ? saved : [];
-    } catch {
-      return [];
-    }
-  });
-
+  const [fields, setFields] = useState(readFields);
   const [position, setPosition] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
+  const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  // Her değişiklikte kayıtları sakla
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(fields)
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(fields));
   }, [fields]);
 
-  // Form alanlarını değiştir
-  function handleChange(e) {
-    const { name, value } = e.target;
-
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  }
-
-  // Yeni tarla formu
-  function handleAddNew() {
-    setFormData(emptyForm);
-    setPosition(null);
-    setEditingId(null);
-    setShowForm(true);
-  }
-
-  // Tarla düzenleme formu
-  function handleEdit(field) {
-    setFormData({
-      fieldName: field.fieldName,
-      area: String(field.area),
-      crop: field.crop,
-      irrigation: field.irrigation
-    });
-
-    setPosition({
-      lat: field.latitude,
-      lng: field.longitude
-    });
-
-    setEditingId(field.id);
-    setShowForm(true);
-  }
-
-  // Kaydet veya güncelle
-  function handleSave(e) {
-    e.preventDefault();
-
-    if (!formData.fieldName.trim()) {
-      alert("Lütfen tarla adını girin.");
-      return;
-    }
-
-    if (
-      !formData.area ||
-      !Number.isFinite(Number(formData.area)) ||
-      Number(formData.area) <= 0
-    ) {
-      alert("Lütfen geçerli bir tarla alanı girin.");
-      return;
-    }
-
-    if (!position) {
-      alert("Lütfen haritadan tarla konumunu seçin.");
-      return;
-    }
-
-    const fieldData = {
-      ...formData,
-      fieldName: formData.fieldName.trim(),
-      area: Number(formData.area),
-      latitude: position.lat,
-      longitude: position.lng
-    };
-
-    if (editingId !== null) {
-      // Var olan tarlayı güncelle
-      setFields(prev =>
-        prev.map(field =>
-          field.id === editingId
-            ? { ...field, ...fieldData }
-            : field
-        )
-      );
-
-      alert("Tarla bilgileri güncellendi!");
-    } else {
-      // Yeni tarla ekle
-      const newField = {
-        id: globalThis.crypto?.randomUUID
-          ? globalThis.crypto.randomUUID()
-          : Date.now(),
-        ...fieldData
-      };
-
-      setFields(prev => [...prev, newField]);
-
-      alert("Tarla başarıyla kaydedildi!");
-    }
-
-    closeForm();
-  }
-
-  // Seçilen tarlanın karnesini aç
-  function handleViewAnalysis(field) {
-    localStorage.setItem(
-      "selectedField",
-      JSON.stringify(field)
-    );
-
-    navigate("/analysis");
-  }
-
-  // Tarla sil
-  function handleDelete(id) {
-    const confirmed = window.confirm(
-      "Bu tarlayı silmek istediğinize emin misiniz?"
-    );
-
-    if (!confirmed) return;
-
-    setFields(prev =>
-      prev.filter(field => field.id !== id)
-    );
-
-    if (editingId === id) {
-      closeForm();
-    }
-  }
-
-  // Formu kapat
   function closeForm() {
-    setFormData(emptyForm);
+    setForm(EMPTY_FORM);
     setPosition(null);
     setEditingId(null);
     setShowForm(false);
   }
 
+  function addField() {
+    closeForm();
+    setShowForm(true);
+  }
+
+  function editField(field) {
+    setForm({
+      fieldName: field.fieldName,
+      area: String(field.area),
+      crop: field.crop,
+      irrigation: field.irrigation,
+    });
+    setPosition({
+      lat: Number(field.latitude),
+      lng: Number(field.longitude),
+    });
+    setEditingId(field.id);
+    setShowForm(true);
+  }
+
+  function saveField(event) {
+    event.preventDefault();
+
+    const area = Number(form.area);
+    if (!form.fieldName.trim() || !Number.isFinite(area) || area <= 0) {
+      alert("Enter a valid field name and area.");
+      return;
+    }
+
+    if (
+      !position ||
+      !Number.isFinite(Number(position.lat)) ||
+      !Number.isFinite(Number(position.lng))
+    ) {
+      alert("Select a field location on the map.");
+      return;
+    }
+
+    const data = {
+      ...form,
+      fieldName: form.fieldName.trim(),
+      area,
+      latitude: Number(position.lat),
+      longitude: Number(position.lng),
+    };
+
+    if (editingId !== null) {
+      const updated = fields.map((field) =>
+        field.id === editingId ? { ...field, ...data } : field
+      );
+      setFields(updated);
+
+      try {
+        const selected = JSON.parse(
+          localStorage.getItem("selectedField") || "null"
+        );
+        if (selected?.id === editingId) {
+          localStorage.setItem(
+            "selectedField",
+            JSON.stringify({ ...selected, ...data })
+          );
+        }
+      } catch {
+        localStorage.removeItem("selectedField");
+      }
+    } else {
+      setFields((previous) => [
+        ...previous,
+        {
+          id: globalThis.crypto?.randomUUID?.() || Date.now(),
+          ...data,
+        },
+      ]);
+    }
+
+    closeForm();
+  }
+
+  function deleteField(id) {
+    if (!window.confirm("Are you sure you want to delete this field?")) {
+      return;
+    }
+
+    setFields((previous) =>
+      previous.filter((field) => field.id !== id)
+    );
+
+    try {
+      const selected = JSON.parse(
+        localStorage.getItem("selectedField") || "null"
+      );
+      if (selected?.id === id) {
+        localStorage.removeItem("selectedField");
+      }
+    } catch {
+      localStorage.removeItem("selectedField");
+    }
+
+    if (editingId === id) closeForm();
+  }
+
+  function openPage(field, route) {
+    localStorage.setItem(
+      "selectedField",
+      JSON.stringify(field)
+    );
+    navigate(route);
+  }
+
   return (
     <div className="app-layout">
       <Sidebar />
-
       <main className="main-content">
-
-        {/* Sayfa başlığı */}
         <section className="fields-page-header">
           <div>
-            <h1>Tarlalarım</h1>
+            <h1>My Fields</h1>
             <p>
-              Kayıtlı arazilerini görüntüle, yeni tarla ekle
-              veya mevcut bilgilerini düzenle.
+              Manage your fields and select locations for analysis.
             </p>
           </div>
 
           {!showForm && (
-            <button
-              className="add-field-btn"
-              onClick={handleAddNew}
-            >
+            <button className="add-field-btn" onClick={addField}>
               <Plus size={20} />
-              Yeni Tarla Ekle
+              Add New Field
             </button>
           )}
         </section>
 
-        {/* Tarla ekleme / düzenleme alanı */}
         {showForm && (
           <section className="field-form-section">
-
             <div className="form-header">
               <div>
                 <h2>
-                  {editingId !== null
-                    ? "Tarla Bilgilerini Düzenle"
-                    : "Yeni Tarla Ekle"}
+                  {editingId !== null ? "Edit Field" : "Add New Field"}
                 </h2>
-
-                <p>
-                  Tarla bilgilerini doldur ve haritadan konum seç.
-                </p>
+                <p>Enter field details and select a map location.</p>
               </div>
-
               <button
                 type="button"
                 className="close-btn"
                 onClick={closeForm}
+                aria-label="Close form"
               >
                 <X size={22} />
               </button>
             </div>
 
-            <form onSubmit={handleSave}>
-
+            <form onSubmit={saveField}>
               <div className="field-form-grid">
-
                 <div className="form-group">
-                  <label>Tarla Adı</label>
-
+                  <label htmlFor="fieldName">Field Name</label>
                   <input
-                    name="fieldName"
-                    value={formData.fieldName}
-                    onChange={handleChange}
-                    placeholder="Örn: Konya Pilot Tarla"
+                    id="fieldName"
+                    value={form.fieldName}
+                    onChange={(event) =>
+                      setForm({ ...form, fieldName: event.target.value })
+                    }
+                    placeholder="e.g. Konya Pilot Field"
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Tarla Alanı (Hektar)</label>
-
+                  <label htmlFor="area">Field Area (hectares)</label>
                   <input
+                    id="area"
                     type="number"
-                    name="area"
                     min="0.01"
                     step="any"
-                    value={formData.area}
-                    onChange={handleChange}
-                    placeholder="Örn: 10"
+                    value={form.area}
+                    onChange={(event) =>
+                      setForm({ ...form, area: event.target.value })
+                    }
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Mevcut Ürün</label>
-
+                  <label htmlFor="crop">Current Crop</label>
                   <select
-                    name="crop"
-                    value={formData.crop}
-                    onChange={handleChange}
+                    id="crop"
+                    value={form.crop}
+                    onChange={(event) =>
+                      setForm({ ...form, crop: event.target.value })
+                    }
                   >
-                    <option>Buğday</option>
-                    <option>Arpa</option>
-                    <option>Mercimek</option>
-                    <option>Nohut</option>
-                    <option>Nadas</option>
+                    {CROP_OPTIONS.map(([id, name]) => (
+                      <option key={id} value={id}>{name}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label>Sulama Durumu</label>
-
+                  <label htmlFor="irrigation">Irrigation Type</label>
                   <select
-                    name="irrigation"
-                    value={formData.irrigation}
-                    onChange={handleChange}
+                    id="irrigation"
+                    value={form.irrigation}
+                    onChange={(event) =>
+                      setForm({ ...form, irrigation: event.target.value })
+                    }
                   >
-                    <option>Kuru tarım</option>
-                    <option>Sulu tarım</option>
+                    {IRRIGATION_OPTIONS.map(([id, name]) => (
+                      <option key={id} value={id}>{name}</option>
+                    ))}
                   </select>
                 </div>
-
               </div>
 
-              {/* Harita */}
               <div className="field-map-section">
-                <h3>
-                  <MapPin size={19} />
-                  Tarla Konumu
-                </h3>
-
-                <p>
-                  Haritaya tıklayarak tarlanın konumunu belirle.
-                  Düzenleme yaparken mevcut konumu değiştirebilirsin.
-                </p>
+                <h3><MapPin size={19} /> Field Location</h3>
+                <p>Click the map to select the field location.</p>
 
                 <FieldMap
                   position={position}
@@ -315,13 +315,8 @@ function FieldSelection() {
 
                 {position && (
                   <div className="selected-position">
-                    <span>
-                      Enlem: {position.lat.toFixed(5)}
-                    </span>
-
-                    <span>
-                      Boylam: {position.lng.toFixed(5)}
-                    </span>
+                    <span>Latitude: {Number(position.lat).toFixed(5)}</span>
+                    <span>Longitude: {Number(position.lng).toFixed(5)}</span>
                   </div>
                 )}
               </div>
@@ -332,146 +327,109 @@ function FieldSelection() {
                   className="cancel-btn"
                   onClick={closeForm}
                 >
-                  Vazgeç
+                  Cancel
                 </button>
-
-                <button
-                  type="submit"
-                  className="save-field-btn"
-                >
-                  {editingId !== null
-                    ? "Değişiklikleri Kaydet"
-                    : "Tarlayı Kaydet"}
+                <button type="submit" className="save-field-btn">
+                  {editingId !== null ? "Save Changes" : "Save Field"}
                 </button>
               </div>
-
             </form>
           </section>
         )}
 
-        {/* Kayıtlı tarlalar */}
         {!showForm && (
           <section className="my-fields-section">
-
             <div className="my-fields-title">
               <div>
-                <h2>Kayıtlı Tarlalar</h2>
-                <p>
-                  Toplam {fields.length} tarla kayıtlı.
-                </p>
+                <h2>Saved Fields</h2>
+                <p>{fields.length} registered field(s).</p>
               </div>
-
               <div className="field-count">
-                {fields.length} Tarla
+                {fields.length} Fields
               </div>
             </div>
 
             {fields.length === 0 ? (
-
               <div className="empty-fields">
                 <Sprout size={48} />
-
-                <h3>Henüz tarla eklemedin.</h3>
-
-                <p>
-                  İlk tarlanı ekleyerek tarım yönetimine başlayabilirsin.
-                </p>
-
-                <button
-                  className="add-field-btn"
-                  onClick={handleAddNew}
-                >
+                <h3>No fields added yet.</h3>
+                <p>Add your first field to begin exploring climate data.</p>
+                <button className="add-field-btn" onClick={addField}>
                   <Plus size={19} />
-                  İlk Tarlanı Ekle
+                  Add Your First Field
                 </button>
               </div>
-
             ) : (
-
               <div className="fields-grid">
-
-                {fields.map(field => (
-
-                  <article
-                    className="field-card"
-                    key={field.id}
-                  >
-
+                {fields.map((field) => (
+                  <article className="field-card" key={field.id}>
                     <div className="field-card-header">
                       <div>
                         <h3>{field.fieldName}</h3>
-
                         <p className="field-location">
                           <MapPin size={15} />
-                          {Number(field.latitude).toFixed(4)},
-                          {" "}
+                          {Number(field.latitude).toFixed(4)},{" "}
                           {Number(field.longitude).toFixed(4)}
                         </p>
                       </div>
-
                       <button
                         className="delete-field-btn"
-                        title="Tarlayı Sil"
-                        onClick={() => handleDelete(field.id)}
+                        title="Delete Field"
+                        onClick={() => deleteField(field.id)}
                       >
                         <Trash2 size={18} />
                       </button>
                     </div>
 
                     <div className="field-card-details">
-
                       <div>
-                        <span>Tarla Alanı</span>
+                        <span>Field Area</span>
                         <strong>{field.area} ha</strong>
                       </div>
-
                       <div>
-                        <span>Mevcut Ürün</span>
-                        <strong>{field.crop}</strong>
+                        <span>Current Crop</span>
+                        <strong>
+                          {optionLabel(CROP_OPTIONS, field.crop)}
+                        </strong>
                       </div>
-
                       <div>
-                        <span>Sulama</span>
-                        <strong>{field.irrigation}</strong>
+                        <span>Irrigation</span>
+                        <strong>
+                          {optionLabel(
+                            IRRIGATION_OPTIONS,
+                            field.irrigation
+                          )}
+                        </strong>
                       </div>
-
                     </div>
 
-                    {/* Düzenle ve tarla karnesi butonları */}
                     <div className="field-card-actions">
-
                       <button
                         className="inspect-field-btn"
-                        onClick={() => handleEdit(field)}
+                        onClick={() => editField(field)}
                       >
-                        <Pencil size={16} />
-                        Düzenle
+                        <Pencil size={16} /> Edit
                       </button>
-
                       <button
                         className="inspect-field-btn"
-                        onClick={() => handleViewAnalysis(field)}
+                        onClick={() => openPage(field, "/analysis")}
                       >
-                        <Sprout size={16} />
-                        Tarla Karnesi
+                        Field Analysis
                       </button>
-
+                      <button
+                        className="inspect-field-btn"
+                        onClick={() => openPage(field, "/rotations")}
+                      >
+                        Rotation Planning
+                      </button>
                     </div>
-
                   </article>
-
                 ))}
-
               </div>
-
             )}
-
           </section>
         )}
-
       </main>
     </div>
   );
 }
-
-export default FieldSelection;
