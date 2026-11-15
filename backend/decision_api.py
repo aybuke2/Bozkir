@@ -279,8 +279,9 @@ def build_decision(request: DecisionRequest):
                 "and elevation inputs"
             ),
             "etc_method": (
-                "FAO-56 single Kc; user-supplied growth "
-                "stages and crop coefficients"
+                "FAO-56 single Kc; historical crop-calendar scenarios, "
+                "FAO-56 reference mid/end coefficients and illustrative "
+                "initial Kc; locally unvalidated"
             ),
             "structural_score": (
                 "Transparent, unvalidated prototype scoring"

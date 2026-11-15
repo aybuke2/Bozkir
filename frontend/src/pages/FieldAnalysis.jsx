@@ -32,14 +32,28 @@ function readSelectedField() {
 }
 
 export default function FieldAnalysis() {
-  const [field] = useState(readSelectedField);
+  const [fields] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("bozkir_fields") || "[]");
+      return Array.isArray(stored) ? stored : [];
+    } catch { return []; }
+  });
+  const [fieldId, setFieldId] = useState(() => {
+    const initial = readSelectedField();
+    return initial?.id == null ? "" : String(initial.id);
+  });
+  const field = fields.find((item) => String(item.id) === fieldId) || null;
   const [climate, setClimate] = useState(null);
   const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(Boolean(field));
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!field) return;
+    if (!field) {
+      setClimate(null); setHistory(null); setLoading(false); setError("");
+      return;
+    }
+    setLoading(true); setError(""); setClimate(null); setHistory(null);
 
     let cancelled = false;
 
@@ -68,7 +82,7 @@ export default function FieldAnalysis() {
 
     load();
     return () => { cancelled = true; };
-  }, [field]);
+  }, [fieldId]);
 
   function format(value, unit) {
     return value == null
@@ -84,6 +98,23 @@ export default function FieldAnalysis() {
         <Navbar />
 
         <h1>Field Analysis</h1>
+        <section className="bozkir-analysis-field-picker">
+          <label htmlFor="analysis-field-select">Select a Field</label>
+          <select id="analysis-field-select" aria-label="Select a field" value={fieldId} onChange={(event) => {
+            const nextId = event.target.value;
+            setFieldId(nextId);
+            const selected = fields.find((item) => String(item.id) === nextId);
+            localStorage.setItem("selectedField", JSON.stringify(selected || null));
+          }}>
+            <option value="">Choose a saved field</option>
+            {fields.map((item) => (
+              <option key={item.id} value={String(item.id)}>
+                {item.fieldName} ({item.latitude}, {item.longitude})
+              </option>
+            ))}
+          </select>
+          {fields.length === 0 && <p>Add a field in My Fields first.</p>}
+        </section>
 
         {!field && (
           <p>

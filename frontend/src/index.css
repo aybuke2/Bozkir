@@ -795,3 +795,54 @@ button:disabled {
     margin-bottom: 25px;
   }
 }
+
+/* Bozkir rotation usability improvements */
+.bozkir-calendar-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-top:20px; }
+.bozkir-calendar-grid .rotation-card { padding:18px; }
+.bozkir-calendar-grid .priority-item label { display:flex; flex-direction:column; gap:6px; }
+.bozkir-calendar-grid input { max-width:100%; width:100%; box-sizing:border-box; padding:7px; border:1px solid #d6dfd7; border-radius:6px; }
+.bozkir-year-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+.bozkir-year-actions button { margin:0; }
+.bozkir-crop-heading { display:flex; align-items:center; gap:10px; }
+.bozkir-crop-heading h3 { margin:0; }
+.bozkir-crop-info { position:relative; cursor:help; outline-offset:3px; }
+.bozkir-crop-icon { font-size:25px; display:inline-flex; padding:3px; border-radius:7px; background:#eff5e9; }
+.bozkir-crop-tooltip { position:absolute; z-index:30; top:100%; left:0; width:230px; display:none; flex-direction:column; gap:6px; background:white; color:#243a2c; border:1px solid #dbe6dc; box-shadow:0 10px 30px #183b2530; padding:13px; border-radius:10px; font-size:13px; line-height:1.4; }
+.bozkir-crop-tooltip em { color:#64776a; }
+.bozkir-crop-info:hover .bozkir-crop-tooltip, .bozkir-crop-info:focus .bozkir-crop-tooltip, .bozkir-crop-info:focus-within .bozkir-crop-tooltip { display:flex; }
+@media(max-width:1200px) { .bozkir-calendar-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:700px) { .bozkir-calendar-grid { grid-template-columns:1fr; } }
+
+/* Crop cards: consistent alignment and a designed, accessible info popover */
+.bozkir-calendar-grid { grid-template-columns:repeat(4,minmax(0,1fr)); align-items:stretch; gap:16px; }
+.bozkir-calendar-grid > .rotation-card { display:flex; flex-direction:column; min-width:0; padding:18px; overflow:visible; }
+.bozkir-crop-heading { min-height:42px; margin-bottom:14px; justify-content:space-between; gap:6px; }
+.bozkir-crop-heading h3 { font-size:19px; }
+.bozkir-crop-info { position:relative; }
+.bozkir-crop-info-trigger { display:inline-flex; align-items:center; gap:5px; padding:6px 9px; border:1px solid #d8e7d9; border-radius:999px; background:#edf5e9; color:#1d6546; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.bozkir-crop-info-trigger:hover, .bozkir-crop-info-trigger:focus-visible { background:#d9ecd8; outline:2px solid #9bc9a5; outline-offset:2px; }
+.bozkir-crop-popover { position:absolute; top:calc(100% + 10px); right:0; z-index:100; width:260px; border-radius:16px; background:white; color:#193e2e; border:1px solid #d7e4d9; box-shadow:0 18px 48px rgba(20,49,32,.22); opacity:0; visibility:hidden; transform:translateY(-5px); transition:opacity .16s,transform .16s,visibility .16s; pointer-events:none; overflow:hidden; }
+.bozkir-crop-info:hover .bozkir-crop-popover, .bozkir-crop-info:focus-within .bozkir-crop-popover { opacity:1; visibility:visible; transform:translateY(0); }
+.bozkir-crop-popover-art { height:102px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(145deg,#d5e7bd,#9bc68c 65%,#70a17b); }
+.bozkir-crop-popover-chickpea .bozkir-crop-popover-art, .bozkir-crop-popover-lentil .bozkir-crop-popover-art { background:linear-gradient(145deg,#e4e6b6,#b4ce8d 60%,#6a9d72); }
+.bozkir-crop-popover-sun { position:absolute; top:8px; right:18px; color:#fff4c6; font-size:29px; }
+.bozkir-crop-popover-plant { font-size:66px; filter:drop-shadow(0 7px 5px rgba(30,70,40,.22)); position:relative; z-index:1; }
+.bozkir-crop-popover-land { position:absolute; bottom:-16px; left:-10%; width:120%; height:40px; background:#5e8d57; border-radius:50%; }
+.bozkir-crop-popover-body { display:flex; flex-direction:column; gap:5px; padding:15px 17px 16px; }
+.bozkir-crop-type { align-self:flex-start; border-radius:999px; padding:3px 8px; background:#e9f3e7; color:#39734b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; }
+.bozkir-crop-popover-body strong { font-size:18px; }
+.bozkir-crop-popover-body em { color:#6e8274; font-size:12px; }
+.bozkir-crop-popover-body p { font-size:12px; line-height:1.5; margin:6px 0; }
+.bozkir-crop-popover-body small { color:#8b9b8f; font-size:10px; }
+.bozkir-kc-note { font-size:12px; color:#6b786e; min-height:52px; }
+.bozkir-calendar-footer { display:flex; flex-direction:column; gap:11px; margin-top:auto; padding-top:17px; min-height:195px; }
+.bozkir-calendar-basis { min-height:38px; font-size:12px; color:#657b6c; margin:0; }
+.bozkir-calendar-links { display:flex; flex-direction:column; gap:7px; min-height:52px; font-size:12px; }
+.bozkir-reset-button { align-self:flex-start; margin-top:auto !important; }
+.bozkir-year-actions { gap:14px; padding-top:8px; }
+.bozkir-year-actions button { margin:0; }
+.bozkir-analysis-field-picker { background:#fff; border:1px solid #e1e8e2; border-radius:14px; padding:20px 24px; margin:22px 0 16px; max-width:700px; display:flex; flex-direction:column; gap:10px; }
+.bozkir-analysis-field-picker label { font-size:18px; font-weight:700; color:#193e2e; }
+.bozkir-analysis-field-picker select { width:100%; padding:10px 12px; border:1px solid #cbd8cd; border-radius:8px; background:white; font-size:14px; }
+@media(max-width:1200px) { .bozkir-calendar-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:700px) { .bozkir-calendar-grid { grid-template-columns:1fr; } }
